@@ -42,10 +42,14 @@ _PLACEHOLDER_TEXT = ("lorem ipsum", "placeholder", "todo", "tbd", "xxx")
 def check_quality_items(elements: list[dict], allow_hand_drawn: bool = False) -> list[str]:
     """Check quality-checklist.md items 16-20 — deterministic properties of the
     generated JSON (text cleanliness, fontFamily, roughness, opacity, container
-    ratio). Returns a list of problem descriptions (empty = all 5 items pass).
+    ratio). Returns a list of problem descriptions (empty = all items pass).
+
+    `elements` must already be filtered to exclude `isDeleted` entries — the
+    only caller (`render()`) computes that filtered list once and passes it
+    straight through; this function does not re-filter it.
     """
     problems: list[str] = []
-    live = [e for e in elements if not e.get("isDeleted")]
+    live = elements
     text_els = [e for e in live if e.get("type") == "text"]
 
     # 16. Text clean — no empty or placeholder text
@@ -81,6 +85,23 @@ def check_quality_items(elements: list[dict], allow_hand_drawn: bool = False) ->
             problems.append(f"container ratio: {ratio:.0%} of text elements are inside containers (limit 30%)")
 
     return problems
+
+
+def quality_report(problems: list[str], allow_hand_drawn: bool = False) -> tuple[str, int]:
+    """Formats the quality-check summary line and the process exit code.
+
+    `total` tracks how many of the 5 checks in check_quality_items() actually
+    ran — roughness is skipped when `allow_hand_drawn`, so the denominator
+    must drop to 4 in that case rather than always claiming out of 5.
+    Returns (line, exit_code): exit_code is 0 when every applicable item
+    passed, 2 otherwise (1 is reserved for the pre-render structural
+    failures validate_excalidraw() already handles).
+    """
+    total = 4 if allow_hand_drawn else 5
+    passed = total - len(problems)
+    if problems:
+        return f"[FAIL] quality {passed}/{total}: " + "; ".join(problems), 2
+    return f"[OK] quality {total}/{total}", 0
 
 
 def compute_bounding_box(elements: list[dict]) -> tuple[float, float, float, float]:
@@ -123,8 +144,15 @@ def render(
     scale: int = 2,
     max_width: int = 1920,
     hand_drawn: bool = False,
-) -> Path:
-    """Render an .excalidraw file to PNG. Returns the output PNG path."""
+) -> tuple[Path, int]:
+    """Render an .excalidraw file to PNG.
+
+    Returns (output_path, quality_exit_code). Rendering always completes and
+    output_path is always returned on success — quality_exit_code (0 or 2,
+    see quality_report()) is the caller's signal for whether to exit non-zero,
+    kept separate so a failed quality gate never withholds the PNG a
+    render-view-fix loop needs to see.
+    """
     # Import playwright here so validation errors show before import errors
     try:
         from playwright.sync_api import sync_playwright
@@ -154,6 +182,17 @@ def render(
 
     # Compute viewport size from element bounding box
     elements = [e for e in data["elements"] if not e.get("isDeleted")]
+
+    # Deterministic JSON quality checks (items 16-20) run before the expensive
+    # Playwright launch below, so the verdict is visible immediately even
+    # though rendering still proceeds regardless of the outcome — Step 3
+    # (render) is mandatory and independent of Step 4 (quality check) in
+    # SKILL.md's Design Process; skipping the render here would deny the
+    # render-view-fix loop the PNG it needs to diagnose what to fix.
+    quality_problems = check_quality_items(elements, allow_hand_drawn=hand_drawn)
+    quality_line, quality_exit_code = quality_report(quality_problems, allow_hand_drawn=hand_drawn)
+    print(quality_line, file=sys.stderr if quality_exit_code else sys.stdout)
+
     min_x, min_y, max_x, max_y = compute_bounding_box(elements)
     padding = 80
     diagram_w = max_x - min_x + padding * 2
@@ -226,13 +265,7 @@ def render(
         svg_el.screenshot(path=str(output_path))
         browser.close()
 
-    quality_problems = check_quality_items(elements, allow_hand_drawn=hand_drawn)
-    if quality_problems:
-        print(f"[FAIL] quality {5 - len(quality_problems)}/5: " + "; ".join(quality_problems), file=sys.stderr)
-    else:
-        print("[OK] quality 5/5")
-
-    return output_path
+    return output_path, quality_exit_code
 
 
 def main() -> None:
@@ -254,8 +287,10 @@ def main() -> None:
         print(f"ERROR: File not found: {args.input}", file=sys.stderr)
         sys.exit(1)
 
-    png_path = render(args.input, args.output, args.scale, args.width, args.hand_drawn)
+    png_path, quality_exit_code = render(args.input, args.output, args.scale, args.width, args.hand_drawn)
     print(str(png_path))
+    if quality_exit_code:
+        sys.exit(quality_exit_code)
 
 
 if __name__ == "__main__":
