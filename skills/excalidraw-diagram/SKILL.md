@@ -1,6 +1,6 @@
 ---
 name: excalidraw-diagram
-description: Create Excalidraw diagram JSON files that make visual arguments, editable in the Excalidraw app. Trigger on "/visuals:excalidraw-diagram". (HTML 슬라이드/대시보드는 visuals:visualize; artifact 내부 다이어그램은 artifact-diagramming/mermaid 사용)
+description: Create an editable .excalidraw diagram JSON that argues visually. Trigger "/visuals:excalidraw-diagram" or when the user wants a diagram to edit in Excalidraw, not artifact-rendered (artifact-diagramming/mermaid). (HTML 슬라이드/대시보드는 visuals:visualize)
 license: MIT
 compatibility:
   network: required

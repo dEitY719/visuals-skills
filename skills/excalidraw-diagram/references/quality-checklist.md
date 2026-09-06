@@ -30,10 +30,10 @@
 ## Technical
 
 16. **Automated JSON checks**: run `render_excalidraw.py <file.excalidraw>` — it
-    prints `[OK] quality 5/5` or `[FAIL] quality: <reason>` for text cleanliness,
-    `fontFamily: 3`, `roughness: 0` (unless hand-drawn style requested),
-    `opacity: 100`, and <30% container ratio. Fix whatever it reports; do not
-    eyeball these by hand.
+    prints `[OK] quality N/N` (stdout, exit 0) or `[FAIL] quality M/N: <reason>`
+    (stderr, exit 2) for text cleanliness, `fontFamily: 3`, `roughness: 0`
+    (skipped with `--hand-drawn`, N drops to 4), `opacity: 100`, and <30%
+    container ratio. Fix whatever it reports; do not eyeball these by hand.
 
 ## Visual Validation (Render Required)
 
