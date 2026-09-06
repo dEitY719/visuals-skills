@@ -13,6 +13,6 @@ working in (default: current directory).
 
 - The `.excalidraw` JSON is the primary deliverable — editable in excalidraw.com.
 - The `.png` is rendered by `render_excalidraw.py` for the render-view-fix loop
-  (Step 5) and final visual verification.
+  (Step 3) and final visual verification.
 - Intermediate iteration PNGs live under `.iter/` so they do not clutter the
   work directory; they may be discarded after the final render passes.

@@ -169,7 +169,7 @@ excalidraw-diagram/
     ├── json-schema.md                # Excalidraw JSON format reference
     ├── large-diagram-strategy.md     # Section-by-section build workflow
     ├── output-format.md              # Output path, filename convention, artifacts
-    ├── quality-checklist.md          # 27-item validation checklist
+    ├── quality-checklist.md          # 23-item validation checklist
     ├── render-validate.md            # Render-view-fix loop process
     ├── render_excalidraw.py          # Render .excalidraw to PNG
     ├── render_template.html          # Browser template for rendering

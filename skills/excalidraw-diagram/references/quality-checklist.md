@@ -29,18 +29,18 @@
 
 ## Technical
 
-16. **Text clean**: `text` contains only readable words
-17. **Font**: `fontFamily: 3`
-18. **Roughness**: `roughness: 0` for clean/modern (unless hand-drawn style requested)
-19. **Opacity**: `opacity: 100` for all elements (no transparency)
-20. **Container ratio**: <30% of text elements should be inside containers
+16. **Automated JSON checks**: run `render_excalidraw.py <file.excalidraw>` — it
+    prints `[OK] quality 5/5` or `[FAIL] quality: <reason>` for text cleanliness,
+    `fontFamily: 3`, `roughness: 0` (unless hand-drawn style requested),
+    `opacity: 100`, and <30% container ratio. Fix whatever it reports; do not
+    eyeball these by hand.
 
 ## Visual Validation (Render Required)
 
-21. **Rendered to PNG**: Diagram has been rendered and visually inspected
-22. **No text overflow**: All text fits within its container
-23. **No overlapping elements**: Shapes and text don't overlap unintentionally
-24. **Even spacing**: Similar elements have consistent spacing
-25. **Arrows land correctly**: Arrows connect to intended elements without crossing others
-26. **Readable at export size**: Text is legible in the rendered PNG
-27. **Balanced composition**: No large empty voids or overcrowded regions
+17. **Rendered to PNG**: Diagram has been rendered and visually inspected
+18. **No text overflow**: All text fits within its container
+19. **No overlapping elements**: Shapes and text don't overlap unintentionally
+20. **Even spacing**: Similar elements have consistent spacing
+21. **Arrows land correctly**: Arrows connect to intended elements without crossing others
+22. **Readable at export size**: Text is legible in the rendered PNG
+23. **Balanced composition**: No large empty voids or overcrowded regions

@@ -1,11 +1,13 @@
 ---
 name: excalidraw-diagram
-description: Create Excalidraw diagram JSON files that make visual arguments. Trigger on "/visuals:excalidraw-diagram" or when the user wants to visualize workflows, architectures, or concepts. (인터랙티브 HTML 슬라이드/대시보드는 visuals:visualize 사용)
+description: Create Excalidraw diagram JSON files that make visual arguments, editable in the Excalidraw app. Trigger on "/visuals:excalidraw-diagram". (HTML 슬라이드/대시보드는 visuals:visualize; artifact 내부 다이어그램은 artifact-diagramming/mermaid 사용)
 license: MIT
+compatibility:
+  network: required
 metadata:
   model_recommendation:
     tier: sonnet
-    reason: "generative diagram JSON with bounded creativity; visual pattern mapping + 27-item quality check"
+    reason: "generative diagram JSON with bounded creativity; visual pattern mapping + 23-item quality check"
     claude: prefer
     non_claude: advisory-only
 ---
@@ -40,21 +42,15 @@ Determine: **simple** (abstract shapes, mental models) or **comprehensive** (rea
 - Simple → abstract shapes, labels, relationships
 - Comprehensive → read `references/evidence-and-research.md` for research mandate, evidence artifacts, and multi-zoom architecture
 
-### Step 1: Understand Deeply
+### Step 1: Map Concepts to Patterns
 
-For each concept ask: What does it **DO**? What relationships exist? What's the core flow? What would someone need to **SEE**?
-
-### Step 2: Map Concepts to Patterns
+For each concept, work out what it **DOES**, its relationships, and the core flow — that determines what someone needs to **SEE**, and which visual pattern shows it.
 
 Read `references/visual-patterns.md` for the concept-to-pattern mapping table and full pattern library (fan-out, convergence, tree, timeline, spiral, cloud, assembly line, side-by-side, gap/break).
 
 Each major concept must use a **different** visual pattern. No uniform cards or grids.
 
-### Step 3: Sketch the Flow
-
-Mentally trace how the eye moves through the diagram. There should be a clear visual story.
-
-### Step 4: Generate JSON
+### Step 2: Generate JSON
 
 Read `references/design-rules.md` for container discipline, color rules, aesthetics, layout, text rules, and JSON structure.
 
@@ -66,20 +62,22 @@ For large/comprehensive diagrams → read `references/large-diagram-strategy.md`
 
 Read `references/output-format.md` for output path rules, filename convention, and artifact structure.
 
-### Step 5: Render & Validate (MANDATORY)
+### Step 3: Render & Validate (MANDATORY)
 
 Read `references/render-validate.md` for the full render-view-fix loop.
 
-### Step 6: Final Quality Check
+### Step 4: Final Quality Check
 
-Read `references/quality-checklist.md` and verify all 27 items, then emit a deterministic verdict:
+Read `references/quality-checklist.md` and verify all 23 items (item 16 is
+`render_excalidraw.py`'s own `[OK]/[FAIL] quality N/N` output — run it, don't
+eyeball it), then emit a deterministic verdict:
 
 ```
 [OK] visuals:excalidraw-diagram
   Topic:      <topic-or-spec>
   File:       <path/to/diagram.excalidraw>
   PNG:        <path/to/diagram.png>
-  Quality:    27/27 items passed
+  Quality:    23/23 items passed
   Iterations: <render-fix loops>
   Next:       open <png-path> 또는 share <excalidraw-path>
 ```
@@ -88,6 +86,6 @@ Read `references/quality-checklist.md` and verify all 27 items, then emit a dete
 
 ```
 [FAIL] visuals:excalidraw-diagram
-  Step:    <Step 0~6 where it failed>
+  Step:    <Step 0~4 where it failed>
   Detail:  <topic too vague | renderer missing | quality items failed>
 ```

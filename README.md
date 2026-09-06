@@ -11,7 +11,7 @@ installable on six coding-agent harnesses.
 |-------|--------|--------------|
 | `visualize` | `/visuals:visualize [<file-or-content>]` | Writes one self-contained HTML file — deck, dashboard, infographic, poster, flowchart, timeline, carousel. Starts from a fixed skeleton and a design system, never from a blank page. The general-purpose default. |
 | `md-to-scrolldeck` | `/visuals:md-to-scrolldeck <input.md> [--slides n] [--outline-only]` | Compresses one Markdown document into a vertical scroll-snap deck (scrollytelling) for leadership review: progress bar, phase header, dot rail, arrow-key nav, print-ready. Prints its slide outline before writing anything. |
-| `excalidraw-diagram` | `/visuals:excalidraw-diagram <topic-or-spec>` | Generates `.excalidraw` JSON that argues visually rather than labelling boxes, renders it to PNG, looks at the render, and fixes it against a 27-item checklist before delivering. |
+| `excalidraw-diagram` | `/visuals:excalidraw-diagram <topic-or-spec>` | Generates `.excalidraw` JSON that argues visually rather than labelling boxes, renders it to PNG, looks at the render, and fixes it against a 23-item checklist before delivering. |
 
 Pick by deliverable, not by topic: `.excalidraw` file -> `excalidraw-diagram`;
 Markdown in and a vertical scroll deck out -> `md-to-scrolldeck`; everything
@@ -90,10 +90,10 @@ read the one file for the harness you are on.
 | `md-to-scrolldeck` | full | full | full | full | full | full |
 | `excalidraw-diagram` | full | needs image read-back | needs image read-back | needs image read-back | needs image read-back | needs image read-back |
 
-*needs image read-back* — Step 5 renders the diagram to PNG and then *looks at
+*needs image read-back* — Step 3 renders the diagram to PNG and then *looks at
 it* to catch overlapping text and misaligned arrows. A harness that cannot read
 an image back still produces the `.excalidraw` and the PNG, but must report the
-visual audit as skipped rather than claiming 27/27 quality items passed. That
+visual audit as skipped rather than claiming 23/23 quality items passed. That
 step also needs `uv` and a Playwright Chromium on the machine.
 
 Auto-open (`xdg-open` / `open`) is a no-op in a headless session; the skills
