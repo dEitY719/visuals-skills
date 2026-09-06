@@ -36,6 +36,53 @@ def validate_excalidraw(data: dict) -> list[str]:
     return errors
 
 
+_PLACEHOLDER_TEXT = ("lorem ipsum", "placeholder", "todo", "tbd", "xxx")
+
+
+def check_quality_items(elements: list[dict], allow_hand_drawn: bool = False) -> list[str]:
+    """Check quality-checklist.md items 16-20 — deterministic properties of the
+    generated JSON (text cleanliness, fontFamily, roughness, opacity, container
+    ratio). Returns a list of problem descriptions (empty = all 5 items pass).
+    """
+    problems: list[str] = []
+    live = [e for e in elements if not e.get("isDeleted")]
+    text_els = [e for e in live if e.get("type") == "text"]
+
+    # 16. Text clean — no empty or placeholder text
+    dirty = [
+        e
+        for e in text_els
+        if not e.get("text", "").strip() or any(p in e.get("text", "").lower() for p in _PLACEHOLDER_TEXT)
+    ]
+    if dirty:
+        problems.append(f"text: {len(dirty)} element(s) empty or placeholder text")
+
+    # 17. Font — fontFamily: 3
+    bad_font = [e for e in text_els if e.get("fontFamily") != 3]
+    if bad_font:
+        problems.append(f"fontFamily: {len(bad_font)} text element(s) not fontFamily 3")
+
+    # 18. Roughness — 0 for clean/modern, unless hand-drawn style was requested
+    if not allow_hand_drawn:
+        bad_rough = [e for e in live if e.get("roughness", 0) != 0]
+        if bad_rough:
+            problems.append(f"roughness: {len(bad_rough)} element(s) with roughness != 0")
+
+    # 19. Opacity — 100 for all elements (no transparency)
+    bad_opacity = [e for e in live if e.get("opacity", 100) != 100]
+    if bad_opacity:
+        problems.append(f"opacity: {len(bad_opacity)} element(s) with opacity != 100")
+
+    # 20. Container ratio — <30% of text elements should be inside containers
+    if text_els:
+        contained = sum(1 for e in text_els if e.get("containerId"))
+        ratio = contained / len(text_els)
+        if ratio >= 0.3:
+            problems.append(f"container ratio: {ratio:.0%} of text elements are inside containers (limit 30%)")
+
+    return problems
+
+
 def compute_bounding_box(elements: list[dict]) -> tuple[float, float, float, float]:
     """Compute bounding box (min_x, min_y, max_x, max_y) across all elements."""
     min_x = float("inf")
@@ -75,6 +122,7 @@ def render(
     output_path: Path | None = None,
     scale: int = 2,
     max_width: int = 1920,
+    hand_drawn: bool = False,
 ) -> Path:
     """Render an .excalidraw file to PNG. Returns the output PNG path."""
     # Import playwright here so validation errors show before import errors
@@ -178,6 +226,12 @@ def render(
         svg_el.screenshot(path=str(output_path))
         browser.close()
 
+    quality_problems = check_quality_items(elements, allow_hand_drawn=hand_drawn)
+    if quality_problems:
+        print(f"[FAIL] quality {5 - len(quality_problems)}/5: " + "; ".join(quality_problems), file=sys.stderr)
+    else:
+        print("[OK] quality 5/5")
+
     return output_path
 
 
@@ -189,13 +243,18 @@ def main() -> None:
     )
     parser.add_argument("--scale", "-s", type=int, default=2, help="Device scale factor (default: 2)")
     parser.add_argument("--width", "-w", type=int, default=1920, help="Max viewport width (default: 1920)")
+    parser.add_argument(
+        "--hand-drawn",
+        action="store_true",
+        help="Skip the roughness=0 quality check (hand-drawn style was intentionally requested)",
+    )
     args = parser.parse_args()
 
     if not args.input.exists():
         print(f"ERROR: File not found: {args.input}", file=sys.stderr)
         sys.exit(1)
 
-    png_path = render(args.input, args.output, args.scale, args.width)
+    png_path = render(args.input, args.output, args.scale, args.width, args.hand_drawn)
     print(str(png_path))
 
 

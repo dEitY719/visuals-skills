@@ -13,7 +13,7 @@ three skills that turn content into a visual deliverable:
 |-------|------|
 | `visualize` | One self-contained HTML file — deck, dashboard, infographic, poster, flowchart, timeline, carousel. The general-purpose default. |
 | `md-to-scrolldeck` | One Markdown file into a vertical scroll-snap deck (scrollytelling) for leadership review. |
-| `excalidraw-diagram` | An `.excalidraw` architecture or concept diagram, rendered to PNG and self-audited against a 27-item checklist. |
+| `excalidraw-diagram` | An `.excalidraw` architecture or concept diagram, rendered to PNG and self-audited against a 23-item checklist. |
 
 The boundary between them is the deliverable, not the topic: `.excalidraw` file
 -> `excalidraw-diagram`; Markdown in and a vertical scroll deck out ->
