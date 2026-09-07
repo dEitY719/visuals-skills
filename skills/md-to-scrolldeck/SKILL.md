@@ -58,15 +58,15 @@ writing any HTML.
 ## Step 3: Build, Write, Verify, Deliver
 
 Copy `references/scroll-deck-skeleton.md` and replace its `YOUR ... HERE`
-tokens — **never write this HTML from scratch**. The chrome is load-bearing
-and `references/checklist.md` enumerates and greps for every piece of it —
-do not drop any of it.
+tokens — **never write this HTML from scratch**. The chrome is load-bearing —
+`references/checklist.md` enumerates every piece (the shared verifier greps
+most of it); don't drop any.
 
 Per-slide: pick the archetype from the outline, vary the slide treatment so no
 three are identical, write real content only (never placeholder text or
 invented figures). Keep the CDN webfont link; base64-embed only behind
 `--offline-font`, after warning — see `references/font-and-bedrock-safety.md`.
-`references/checklist.md` also lists what to never add back — it is
+`references/checklist.md` also lists what to never add back —
 deliberately out of scope here.
 
 Then, in this order: (1) **one `Write` call** for the whole file — see
