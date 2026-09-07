@@ -1,9 +1,9 @@
 # visualize: Critical Requirements
 
 These requirements must be followed for every visualization. Always start from
-[skeleton.md](skeleton.md); `lib/verify-html.sh --profile viz` (see
-[checklist.md](checklist.md)) enforces items 1-7 and 9 mechanically after you write
-the file.
+[skeleton.md](skeleton.md). After writing the file, run `lib/verify-html.sh
+--profile viz` — see [checklist.md](checklist.md) for exactly what it checks
+mechanically and what still needs human judgement.
 
 1. **CSS Custom Properties:** Exact names required: `--bg, --surface, --surface-hover, --border, --text, --text-secondary, --accent, --accent-secondary, --positive, --negative, --warning`
 2. **Utility Menu:** `.viz-menu` with `.viz-menu-toggle`, `.viz-menu-dropdown`, download PNG (`downloadImage()`), print (`window.print()`), and html-to-image CDN script. See [menu.md](menu.md) for full implementation.
