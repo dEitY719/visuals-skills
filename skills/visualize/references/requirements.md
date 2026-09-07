@@ -14,4 +14,4 @@ the file.
 7. **Print & Accessibility:** `@media print`, `@media (prefers-reduced-motion: reduce)`, aria-labels on all interactive elements and charts.
 8. **Entrance Animations:** `.animate` classes or `data-reveal`. See [animations.md](animations.md) for patterns.
 9. **JavaScript:** `cycleTheme()`, `toggleMenu()`, all top-level variables in the **generated HTML** use `var` (never `let`/`const` — avoids TDZ errors with CDN-loaded libraries).
-10. **Bedrock-Safe Output (NON-NEGOTIABLE):** [bedrock-safe-write.md](bedrock-safe-write.md) § Hard Rules owns this rule in full. Read it before delivering.
+10. **Bedrock-Safe Output:** [bedrock-safe-write.md](bedrock-safe-write.md) § Hard Rules owns this rule in full. Read it before delivering.

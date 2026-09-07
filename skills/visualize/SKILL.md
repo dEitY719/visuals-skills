@@ -80,7 +80,7 @@ This skill runs mid-conversation. Use all available context: conversation histor
 
 ## Process
 
-Run these in order. Stop and emit `[FAIL]` (see above) on an unloadable skeleton, an unresolved ambiguous format, or an unfixed `verify-html.sh` failure.
+Run these in order. Stop and emit `[FAIL]` (see above) on an unresolved ambiguous format or an unfixed `verify-html.sh` failure — step 2 covers an unloadable skeleton.
 
 1. **Understand** — message, audience, format. If format unclear, run Auto-Recommend from [references/type-rules.md](references/type-rules.md) and wait for confirmation — never guess a format.
 2. **Start from skeleton** — [references/skeleton.md](references/skeleton.md). NEVER start blank; if it cannot be loaded, stop and emit `[FAIL]`.
