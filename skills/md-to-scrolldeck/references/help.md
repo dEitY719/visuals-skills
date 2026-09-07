@@ -49,9 +49,9 @@ Natural-language triggers work too: "이 md를 프레젠테이션으로 만들�
    not block waiting for a reply unless you asked to review first.
 4. Builds the deck from `references/scroll-deck-skeleton.md` — the
    load-bearing chrome is enumerated in `references/checklist.md`.
-5. Writes the file in a single `Write` call, verifies it against
-   `references/checklist.md` (fixing and rewriting on any failure), opens
-   it, and reports the slide count + `file://` URL.
+5. Writes the file in a single `Write` call, runs the shared verifier
+   (fixing and rewriting on any `[FAIL]`) plus `references/checklist.md`'s
+   judgement items, opens it, and reports the slide count + `file://` URL.
 
 ## What the skill will NOT do
 
