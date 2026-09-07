@@ -58,16 +58,16 @@ writing any HTML.
 ## Step 3: Build, Write, Verify, Deliver
 
 Copy `references/scroll-deck-skeleton.md` and replace its `YOUR ... HERE`
-tokens — **never write this HTML from scratch**. The chrome is load-bearing and
-the verifier checks for it: top progress bar, fixed phase header with an
-`01 / NN` counter, right-edge dot rail, `scroll-snap-type: y mandatory` slides
-tracked by `IntersectionObserver`, arrow-key navigation, print-ready output.
+tokens — **never write this HTML from scratch**. The chrome is load-bearing
+and `references/checklist.md` enumerates and greps for every piece of it —
+do not drop any of it.
 
 Per-slide: pick the archetype from the outline, vary the slide treatment so no
 three are identical, write real content only (never placeholder text or
 invented figures). Keep the CDN webfont link; base64-embed only behind
-`--offline-font`, after warning — see `references/font-and-bedrock-safety.md`. Do not add back `.viz-menu`,
-theme toggle, or PNG export — deliberately out of scope here.
+`--offline-font`, after warning — see `references/font-and-bedrock-safety.md`.
+`references/checklist.md` also lists what to never add back — it is
+deliberately out of scope here.
 
 Then, in this order: (1) **one `Write` call** for the whole file — see
 `font-and-bedrock-safety.md` § 2 for why one call, no chat echo; (2) run
