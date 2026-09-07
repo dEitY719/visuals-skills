@@ -1,10 +1,10 @@
 ---
 name: visualize
 description: >-
-  Create a self-contained HTML file on disk — dashboard, infographic, deck —
-  and open it. Use for /visuals:visualize, "visualize this", "이거 시각화해줘".
-  인챗 차트/Artifact 는 built-in dataviz, Excalidraw 는 visuals:excalidraw-diagram,
-  세로 스크롤 덱은 visuals:md-to-scrolldeck.
+  Create a self-contained HTML file — dashboard, infographic, deck. Use for
+  /visuals:visualize, "visualize this", "이거 시각화해줘". 인챗 차트/Artifact 는
+  built-in dataviz, Excalidraw 는 visuals:excalidraw-diagram, 세로 스크롤 덱은
+  visuals:md-to-scrolldeck.
 license: MIT
 metadata:
   author: careerhackeralex
@@ -79,6 +79,8 @@ When user provides content **without specifying format**: analyze → recommend 
 This skill runs mid-conversation. Use all available context: conversation history, URLs (crawl + extract), pasted data (CSV/JSON → charts), code/architecture (→ system diagrams). Always use real content — never placeholder data.
 
 ## Process
+
+Run these in order. Stop and emit `[FAIL]` (see above) on an unloadable skeleton, an unresolved ambiguous format, or an unfixed `verify-html.sh` failure.
 
 1. **Understand** — message, audience, format. If format unclear, run Auto-Recommend from [references/type-rules.md](references/type-rules.md) and wait for confirmation — never guess a format.
 2. **Start from skeleton** — [references/skeleton.md](references/skeleton.md). NEVER start blank; if it cannot be loaded, stop and emit `[FAIL]`.
