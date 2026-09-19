@@ -89,6 +89,16 @@ link — one tool rename must stay one edit across all fifteen repos (NF-2).
   `skillInstructions` in the same commit, and open an issue against
   `harness-skills` if the shared mapping needs a new row.
 
+## Eval pipeline (`eval/`)
+
+`eval/` is the quality loop for the `visualize` skill, imported from the
+retired `dEitY719/visualize` fork (archived rounds and screenshots were left
+behind). It is contributor tooling, not a skill: it sits outside `skills/` so no
+harness loads `eval/SKILL.md`. Run Layer 1 + 2 with
+`cd eval/pipeline && npm install && node run.js --dir ../../skills/visualize/examples/`;
+Layer 3 (visual quality) is scored by the agent from the captured screenshots.
+See `eval/EVAL.md` for scoring and `eval/LOOP.md` for the improvement loop.
+
 ## Emojis
 
 No emojis in `README.md`, `CLAUDE.md`, `GEMINI.md`, any manifest, or any

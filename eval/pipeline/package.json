@@ -1,0 +1,13 @@
+{
+  "name": "visualize-eval-pipeline",
+  "version": "1.0.0",
+  "description": "Automated evaluation pipeline for the Visualize plugin. Runs Layer 1 (format detection) and Layer 2 (DOM checks) deterministically. Layer 3 (vision) is performed by the AI agent.",
+  "type": "module",
+  "scripts": {
+    "eval": "node run.js",
+    "eval:file": "node run.js --file"
+  },
+  "dependencies": {
+    "playwright": "^1.50.0"
+  }
+}
