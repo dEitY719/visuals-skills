@@ -1,6 +1,6 @@
 {
   "name": "visuals-skills",
-  "version": "0.5.0",
+  "version": "0.5.1",
   "description": "Skills for turning content into HTML decks, scroll decks, and Excalidraw diagrams",
   "type": "module",
   "main": ".opencode/plugins/visuals.js",

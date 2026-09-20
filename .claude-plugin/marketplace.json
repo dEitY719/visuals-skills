@@ -10,7 +10,7 @@
     {
       "name": "visuals",
       "description": "Turn any content into a visual deliverable: self-contained HTML decks, dashboards, infographics and posters; vertical scroll-snap decks built from a Markdown file; and Excalidraw architecture and concept diagrams. Bundles the 'visualize', 'md-to-scrolldeck', and 'excalidraw-diagram' skills.",
-      "version": "0.5.0",
+      "version": "0.5.1",
       "source": "./",
       "author": {
         "name": "dEitY719",
