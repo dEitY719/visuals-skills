@@ -96,6 +96,63 @@ HTML
   expect_status "bad profile exits 2" 2 --profile bogus "$tmp/js-theme.html"
   expect_status "missing file exits 2" 2 --profile viz "$tmp/nope.html"
 
+  # 7. REGRESSION: `display: revert` in @media print does not hide the menu.
+  #    Both fixtures carry a screen-side `.viz-menu-dropdown { display: none }`
+  #    so a prefix match on the class name cannot satisfy the check either.
+  cat >"$tmp/print-revert.html" <<'HTML'
+<html class="theme-dark"><body><main id="main-content">x</main>
+<style>.theme-light{color:#000} .viz-menu-dropdown { display: none; }
+@media print { .viz-menu, .reveal { display: revert; } }</style>
+</body></html>
+HTML
+  expect_line "print display:revert rejected" viz "$tmp/print-revert.html" \
+    "[FAIL] print hides .viz-menu"
+  cat >"$tmp/print-none.html" <<'HTML'
+<html class="theme-dark"><body><main id="main-content">x</main>
+<style>.theme-light{color:#000} .viz-menu-dropdown { display: none; }
+@media print { .viz-menu, .skip-to-content { display: none !important; } }</style>
+</body></html>
+HTML
+  expect_line "print display:none accepted" viz "$tmp/print-none.html" \
+    "[OK] print hides .viz-menu"
+
+  # 8. REGRESSION: the skeleton shipped a second, outer <main id="main-content">.
+  #    The landmark check above is satisfied by either one, so only a count
+  #    catches it.
+  cat >"$tmp/two-mains.html" <<'HTML'
+<html class="theme-dark"><body><main id="main-content">
+<main id="main-content" role="main">x</main></main>
+<style>.theme-light{color:#000}</style></body></html>
+HTML
+  expect_line "duplicate <main> caught" viz "$tmp/two-mains.html" \
+    "[FAIL] exactly one <main>"
+
+  # 9. REGRESSION: #18's one-line grep missed a .card:hover written across
+  #    several lines, so excalidraw-diagram.html and visualize-usage.html
+  #    falsely passed. The rule below is deliberately multi-line.
+  cat >"$tmp/card-transform.html" <<'HTML'
+<html class="theme-dark"><body><main id="main-content">x</main>
+<style>.theme-light{color:#000}
+.card:hover {
+  box-shadow: 0 8px 16px rgba(0,0,0,0.08);
+  transform: translateY(-2px);
+}</style></body></html>
+HTML
+  expect_line "multi-line .card:hover transform caught" viz "$tmp/card-transform.html" \
+    "[FAIL] .card:hover has no transform"
+
+  # 10. and an unrelated class that merely ENDS in -card must not be read as
+  #     .card - docs/skill-output/excalidraw-diagram-usage.html ships exactly
+  #     this and is correct.
+  cat >"$tmp/sibling-card.html" <<'HTML'
+<html class="theme-dark"><body><main id="main-content">x</main>
+<style>.theme-light{color:#000}
+.swatch-card:hover { transform: translateY(-3px); }
+.card:hover { box-shadow: 0 8px 16px rgba(0,0,0,0.08); }</style></body></html>
+HTML
+  expect_line "sibling -card:hover transform allowed" viz "$tmp/sibling-card.html" \
+    "[OK] .card:hover has no transform"
+
   if [ "$fails" -eq 0 ]; then
     printf '[OK] verify-html selftest: all cases passed\n'
     exit 0
@@ -139,6 +196,27 @@ count_hits() {
 # One tag per line: a formatted file wraps a tag's attributes across several
 # lines, so ids and hrefs must be read from the tag, not from a line.
 flatten_tags() { tr '\n' ' ' <"$FILE" | sed 's/</\n</g'; }
+# One CSS rule per line: `selectors {  declarations`. A rule is routinely
+# written across several lines, and a per-line grep then reads the selector
+# and the declarations as unrelated text - that is how #18's reproducer let
+# two multi-line `.card:hover` rules through. Splitting on `}` instead of on
+# the newline keeps each selector glued to the block it opens.
+flatten_rules() { tr '\n' ' ' <"$FILE" | tr '}' '\n'; }
+# The first `@media print` at-rule's body, brace-counted so that a nested
+# rule's own `}` cannot end it early. A whole-file grep cannot answer "does
+# PRINT hide this", only "is it hidden somewhere".
+print_block() {
+  tr '\n' ' ' <"$FILE" | awk '
+    { i = index($0, "@media print"); if (!i) exit
+      s = substr($0, i); d = 0
+      for (j = 1; j <= length(s); j++) {
+        c = substr(s, j, 1)
+        if (c == "{") d++
+        else if (c == "}" && --d == 0) break
+        printf "%s", c
+      }
+      print "" }'
+}
 # present <label> <fixed-string>
 present() { if grep -qF -- "$2" "$FILE"; then ok "$1"; else bad "$1" "'$2' not found"; fi; }
 # count_eq <label> <fixed-string> <expected-lines> <why-that-many>
@@ -165,7 +243,10 @@ check_viz() {
   # Scoped to the at-rule: the JS first-visit detection
   # window.matchMedia('(prefers-color-scheme: light)') is REQUIRED by
   # checklist.md and must not trip this. See selftest cases 2 and 3.
-  n=$(count_lines_re '@media[^{]*prefers-color-scheme')
+  # Requiring the opening brace keeps prose and comments that merely NAME the
+  # at-rule from failing - skeleton.md's own "class-based ONLY - no @media
+  # prefers-color-scheme" comment is the case that forced this.
+  n=$(count_lines_re '@media[^{]*prefers-color-scheme[^{]*\{')
   if [ "$n" -eq 0 ]; then
     ok "no @media prefers-color-scheme"
   else
@@ -178,6 +259,15 @@ check_viz() {
   present "toggleMenu()" 'toggleMenu('
   present "downloadImage()" 'downloadImage('
   present "@media print" '@media print'
+  # `display: revert` restores the UA default, it does not hide - the skeleton
+  # shipped exactly that and printed the hamburger onto the page.
+  if print_block | tr '}' '\n' |
+     grep -qE '(^|[^-[:alnum:]_])\.viz-menu([^-[:alnum:]_{][^{]*)?\{[^{]*display:[[:space:]]*none'; then
+    ok "print hides .viz-menu"
+  else
+    bad "print hides .viz-menu" \
+      "@media print sets no display: none on .viz-menu; 'display: revert' does not hide it"
+  fi
   present "@media (prefers-reduced-motion)" '@media (prefers-reduced-motion'
   # Requiring the <main> tag itself, not just the id, keeps the skip-link
   # target href="#main-content" from satisfying the landmark.
@@ -185,6 +275,25 @@ check_viz() {
     ok '<main id="main-content">'
   else
     bad '<main id="main-content">' 'no <main> element carrying id="main-content"'
+  fi
+  # Two <main> elements is invalid HTML on its own; two carrying the same id is
+  # a broken skip link as well. The check above is satisfied by either of them,
+  # so the count has to be asserted separately.
+  n=$(flatten_tags | grep -cE '^<main[[:space:]>]' || true)
+  if [ "$n" -eq 1 ]; then
+    ok "exactly one <main> (1)"
+  else
+    bad "exactly one <main>" "$n <main> element(s); a document has exactly one"
+  fi
+
+  # checklist.md bans a transform on .card:hover (layout shift on hover); a
+  # shadow, and a border-color accent, are both fine. `.swatch-card:hover` and
+  # friends are unrelated classes - requiring the literal dot excludes them.
+  if flatten_rules | grep -qE '\.card:hover[^{]*\{[^{]*transform[[:space:]]*:'; then
+    bad ".card:hover has no transform" \
+      "transform in the .card:hover rule; hover is shadow (and border-color), not motion"
+  else
+    ok ".card:hover has no transform"
   fi
 
   # Match declarations ("--text:") so --text-secondary: cannot satisfy --text.
@@ -199,7 +308,10 @@ check_viz() {
     bad "css custom properties" "missing:$miss"
   fi
 
-  if ! grep -qF -- 'Chart' "$FILE"; then
+  # `new Chart(` is what creates a chart. A bare 'Chart' also matches prose and
+  # the skeleton's commented-out Chart.js pattern, which then demand a
+  # Chart.defaults line from a file that draws nothing.
+  if ! grep -qE 'new[[:space:]]+Chart[[:space:]]*\(' "$FILE"; then
     ok "charts: none present (skipped)"
   else
     if grep -qE 'Chart\.defaults\.animation[[:space:]]*=[[:space:]]*false' "$FILE"; then
