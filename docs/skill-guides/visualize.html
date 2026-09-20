@@ -92,7 +92,6 @@
     .req-card h4 { font-size: 1.12rem; font-weight: 700; margin: 6px 0 8px; }
     .req-card p { font-size: 0.93rem; color: var(--text-secondary); line-height: 1.55; }
     .req-card code { font-size: 0.82rem; background: var(--code-bg); padding: 1px 6px; border-radius: 5px; color: var(--text); white-space: nowrap; }
-    .tag-critical { display: inline-block; font-size: 0.68rem; font-weight: 700; letter-spacing: 0.04em; text-transform: uppercase; color: var(--warning); border: 1px solid var(--warning); border-radius: 5px; padding: 1px 6px; margin-top: 10px; }
 
     .warn-banner {
       display: flex; gap: 16px; align-items: flex-start;
@@ -215,8 +214,8 @@
       <div class="warn-banner">
         <span class="ico">⚠️</span>
         <div>
-          <strong>Evaluation failure guaranteed without these elements.</strong>
-          <p class="text-secondary" style="margin-top:4px; font-size:0.92rem;">Copy skeleton → replace “YOUR CONTENT HERE” → save file. Never write HTML from scratch.</p>
+          <strong>Never write this HTML from scratch.</strong>
+          <p class="text-secondary" style="margin-top:4px; font-size:0.92rem;">Copy skeleton → replace “YOUR CONTENT HERE” → save file. Then <code>bash lib/verify-html.sh --profile viz &lt;out&gt;.html</code> must exit 0, and the human-judgement items in <code>references/checklist.md</code> are checked by hand.</p>
         </div>
       </div>
 
@@ -235,7 +234,6 @@
           <span class="rnum">03</span>
           <h4>Theme Classes</h4>
           <p>Define <strong>both</strong> <code>.theme-light</code> and <code>.theme-dark</code> in the stylesheet — class-based only, never <code>@media prefers-color-scheme</code>.</p>
-          <span class="tag-critical">Evaluation Critical</span>
         </div>
         <div class="card req-card">
           <span class="rnum">04</span>
@@ -246,7 +244,6 @@
           <span class="rnum">05</span>
           <h4>Chart.js (charts only)</h4>
           <p>CDN before <code>&lt;/head&gt;</code>, <code>Chart.defaults.animation = false;</code> immediately after, ChartManager pattern preferred.</p>
-          <span class="tag-critical">Evaluation Critical</span>
         </div>
         <div class="card req-card">
           <span class="rnum">06</span>
@@ -261,12 +258,17 @@
         <div class="card req-card">
           <span class="rnum">08</span>
           <h4>Entrance Animations</h4>
-          <p><code>.animate</code> classes or <code>data-reveal</code> — evaluation detects and requires animation presence.</p>
+          <p><code>.animate</code> classes or <code>data-reveal</code> — patterns in <code>references/animations.md</code>.</p>
         </div>
         <div class="card req-card">
           <span class="rnum">09</span>
           <h4>JavaScript</h4>
           <p><code>cycleTheme()</code>, <code>toggleMenu()</code>, and all top-level vars use <code>var</code> (never <code>let</code>/<code>const</code> — avoids TDZ errors with CDN libs).</p>
+        </div>
+        <div class="card req-card">
+          <span class="rnum">10</span>
+          <h4>Bedrock-Safe Output</h4>
+          <p>One <code>Write</code> call for the whole file, and never echo the generated HTML back into chat. <code>references/bedrock-safe-write.md</code> § Hard Rules owns this rule in full — read it before delivering.</p>
         </div>
       </div>
     </section>
@@ -361,11 +363,12 @@
           </div>
         </div>
         <div class="card">
-          <h3 style="margin-bottom:10px;">Auto-open &amp; return</h3>
-          <p class="text-secondary" style="font-size:0.92rem; margin-bottom:14px;">After writing the file, always do both:</p>
+          <h3 style="margin-bottom:10px;">After writing the file</h3>
+          <p class="text-secondary" style="font-size:0.92rem; margin-bottom:14px;">Always do all three:</p>
           <ul class="rule-list" style="gap:10px;">
             <li><span class="k">1</span><span class="v">Auto-open: <code>xdg-open</code> (Linux/WSL) · <code>open</code> (macOS) the <code>.html</code> file — never <code>wslview</code>, it errors on HTML.</span></li>
             <li><span class="k">2</span><span class="v">Return URL: include <code>file://&lt;absolute-path&gt;</code> in the response.</span></li>
+            <li><span class="k">3</span><span class="v">Do <strong>not</strong> echo the generated HTML into chat — summary, URL and open command only. See <code>references/bedrock-safe-write.md</code>.</span></li>
           </ul>
         </div>
       </div>
@@ -382,7 +385,7 @@
     <!-- PROCESS -->
     <section data-reveal>
       <div class="sec-head"><span class="sec-num">07</span><h2>Process</h2></div>
-      <p class="sec-sub">Five steps from intent to verified output.</p>
+      <p class="sec-sub">Five steps from intent to verified output. Run them in order, and stop with <code>[FAIL]</code> on an unresolved ambiguous format or an unfixed <code>verify-html.sh</code> failure.</p>
       <div class="steps">
         <div class="step">
           <div class="sdot">1</div>
@@ -390,7 +393,7 @@
         </div>
         <div class="step">
           <div class="sdot">2</div>
-          <div><h4>Start from skeleton</h4><p>Open <code>references/skeleton.md</code>. Never start blank.</p></div>
+          <div><h4>Start from skeleton</h4><p>Open <code>references/skeleton.md</code>. Never start blank; if it cannot be loaded, stop and emit <code>[FAIL]</code>.</p></div>
         </div>
         <div class="step">
           <div class="sdot">3</div>
@@ -402,7 +405,23 @@
         </div>
         <div class="step">
           <div class="sdot">5</div>
-          <div><h4>Verify</h4><p>Run <code>references/checklist.md</code> before outputting.</p></div>
+          <div><h4>Verify</h4><p><code>bash lib/verify-html.sh --profile viz &lt;out&gt;.html</code> must exit 0, then the human-judgement items in <code>references/checklist.md</code>.</p></div>
+        </div>
+      </div>
+    </section>
+
+    <!-- RELATED SKILLS -->
+    <section data-reveal>
+      <div class="sec-head"><span class="sec-num">08</span><h2>Related Skills</h2></div>
+      <p class="sec-sub">The boundary is the deliverable, never the topic. This skill owns everything visual that is not one of the two below.</p>
+      <div class="grid grid-2">
+        <div class="card">
+          <h4 style="font-size:1.08rem; font-weight:700; margin-bottom:8px;">visuals:md-to-scrolldeck</h4>
+          <p class="text-secondary" style="font-size:0.92rem;">A Markdown file into a vertical scroll-snap deck. Everything else — dashboards, infographics, posters, horizontal decks — stays here.</p>
+        </div>
+        <div class="card">
+          <h4 style="font-size:1.08rem; font-weight:700; margin-bottom:8px;">visuals:excalidraw-diagram</h4>
+          <p class="text-secondary" style="font-size:0.92rem;">When the deliverable is an <code>.excalidraw</code> file rather than HTML.</p>
         </div>
       </div>
     </section>
