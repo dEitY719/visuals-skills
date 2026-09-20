@@ -95,10 +95,18 @@ link — one tool rename must stay one edit across all fifteen repos (NF-2).
   a `docs/skill-guides/<skill>.md`** — it would duplicate `SKILL.md`, and the
   original, the copy, and the HTML would then drift apart. To refresh a guide,
   re-render its `SKILL.md` through `/visuals:visualize` again — not generic
-  markdown-to-HTML tooling, so the same rendering conventions apply. That
-  re-render is an LLM call, not a deterministic build step, so there is no
-  automated staleness check; the footer's named source path is the only
-  freshness signal — re-render whenever `SKILL.md` changes underneath it.
+  markdown-to-HTML tooling, so the same rendering conventions apply. Re-render
+  whenever `SKILL.md` changes underneath it.
+  That re-render is an LLM call, not a deterministic build step, so the two
+  files can never be diffed, and they cannot be compared by date either — in
+  #34 the stale guide's commit was *newer* than the `SKILL.md` it had drifted
+  from. `tests/skill-guides.sh` compares them on content instead: it reads the
+  verifier profile, the numbered `references/requirements.md` titles, the
+  Related Skills siblings and the quality-checklist item count out of the
+  sources and fails if a guide no longer carries them. Every value is derived,
+  so a source edit moves the expectation with it. It catches a fact the source
+  gained and the guide never got; it cannot catch a fact the source *dropped*
+  and the guide still shows, which stays a reading job (#29).
 - **`docs/skill-output/<skill>-usage.{md,html}` keeps both files.** These are
   records of one real run: the `.md` is the source, the `.html` is that
   source rendered by `/visuals:visualize` — the same tool and rule as
