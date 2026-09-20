@@ -89,3 +89,10 @@ eyeball it), then emit a deterministic verdict:
   Step:    <Step 0~4 where it failed>
   Detail:  <topic too vague | renderer missing | quality items failed>
 ```
+
+## Related Skills
+
+`visuals:visualize` — the general-purpose sibling for dashboards, infographics,
+posters, and horizontal decks; this skill owns the `.excalidraw` file only ·
+`visuals:md-to-scrolldeck` — when the deliverable is a Markdown file turned
+into a vertical scroll-snap deck, not a diagram.
