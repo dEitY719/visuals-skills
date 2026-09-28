@@ -67,11 +67,12 @@ for guide in docs/skill-guides/*.html; do
   #    guide still said "Run references/checklist.md before outputting".
   #    The skill-relative path is part of the fact (#43): after the verifier
   #    moved to lib/vendor/, a guide still saying "lib/verify-html.sh
-  #    --profile viz" matched the old bare-name substring and passed. Quotes
-  #    are dropped from the guide so `"$_skill/lib/..." --profile` matches too.
-  verifier=$(sed -n 's/.*[/"]\(lib\/[a-z/-]*verify-html\.sh\)" --profile \([a-z][a-z]*\).*/\1 --profile \2/p' "$md" | head -1)
+  #    --profile viz" matched the old bare-name substring and passed. Only the
+  #    quote closing the path is dropped, so `"$_skill/lib/..." --profile`
+  #    matches while the rest of the guide is compared as rendered.
+  verifier=$(sed -n 's/.*[/"]\(lib\/[A-Za-z0-9_/.-]*verify-html\.sh\)" --profile \([a-z][a-z]*\).*/\1 --profile \2/p' "$md" | head -1)
   if [ -n "$verifier" ]; then
-    case "$(printf '%s' "$text" | tr -d '"')" in
+    case "$(printf '%s' "$text" | sed 's/verify-html\.sh" /verify-html.sh /g')" in
       *"$verifier"*) pass "names $verifier" ;;
       *) fail "$md mandates '$verifier' but $guide never names it" ;;
     esac
