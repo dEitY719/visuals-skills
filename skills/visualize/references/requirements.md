@@ -1,8 +1,9 @@
 # visualize: Critical Requirements
 
 These requirements must be followed for every visualization. Always start from
-[skeleton.md](skeleton.md). After writing the file, run `lib/verify-html.sh
---profile viz` — see [checklist.md](checklist.md) for exactly what it checks
+[skeleton.md](skeleton.md). After writing the file, run `lib/vendor/verify-html.sh
+--profile viz` (resolve the skill dir with the guard block atop
+[checklist.md](checklist.md)) — see [checklist.md](checklist.md) for exactly what it checks
 mechanically and what still needs human judgement.
 
 1. **CSS Custom Properties:** Exact names required: `--bg, --surface, --surface-hover, --border, --text, --text-secondary, --accent, --accent-secondary, --positive, --negative, --warning`
