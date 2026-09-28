@@ -1,6 +1,6 @@
 {
   "name": "visuals",
   "description": "HTML decks, scroll decks, and Excalidraw diagrams from any content",
-  "version": "0.5.2",
+  "version": "0.5.3",
   "contextFileName": "GEMINI.md"
 }
