@@ -4,8 +4,11 @@ Run the shared verifier first, and fix every `[FAIL]` it reports:
 
 ```sh
 if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then _skill="$CLAUDE_PLUGIN_ROOT/skills/visualize"; else _skill="${HERMES_SKILL_DIR}"; fi
-[ -n "$_skill" ] && [ -f "$_skill/lib/vendor/verify-html.sh" ] || { printf '[FAIL] skill dir unresolved — export CLAUDE_PLUGIN_ROOT=<plugin dir>\n' >&2; exit 1; }
-bash "$_skill/lib/vendor/verify-html.sh" --profile viz <output>.html
+if [ -n "$_skill" ] && [ -f "$_skill/lib/vendor/verify-html.sh" ]; then
+  bash "$_skill/lib/vendor/verify-html.sh" --profile viz <output>.html
+else
+  printf '[FAIL] skill dir unresolved — export CLAUDE_PLUGIN_ROOT=<plugin dir> or HERMES_SKILL_DIR=<skill dir>\n' >&2; false
+fi
 ```
 
 It codes the mechanical items and prints its own labels. What it cannot see —
