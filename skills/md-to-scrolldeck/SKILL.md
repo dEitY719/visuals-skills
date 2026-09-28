@@ -71,7 +71,8 @@ deliberately out of scope here.
 
 Then, in this order: (1) **one `Write` call** for the whole file — see
 `font-and-bedrock-safety.md` § 2 for why one call, no chat echo; (2) run
-`bash "${CLAUDE_PLUGIN_ROOT}/lib/verify-html.sh" --profile deck <out>.html`,
+`bash "$_skill/lib/vendor/verify-html.sh" --profile deck <out>.html`
+(resolve `$_skill` with the guard block atop `references/checklist.md`),
 which must exit 0 — every `[FAIL]` gets fixed and rewritten before you
 report, never report a broken dot rail as `[OK]` — then the judgement items
 in `references/checklist.md`; (3) auto-open unless `--no-open` (`xdg-open`

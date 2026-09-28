@@ -42,6 +42,9 @@ and points at a single flat `./skills/` directory:
 gemini-extension.json + GEMINI.md          Gemini CLI
 skills/<name>/SKILL.md                     the skills themselves
 lib/                                       helpers two or more skills share
+                                           (source; each skill runs its own
+                                           copy in skills/<name>/lib/vendor/,
+                                           tests/vendor-drift.sh keeps them equal)
 docs/                                      GitHub Pages guides and samples
 ```
 

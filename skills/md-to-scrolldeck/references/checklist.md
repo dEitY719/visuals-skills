@@ -4,7 +4,9 @@ Every mechanical item below is coded in the shared verifier — run it first,
 and fix every `[FAIL]` before reading further:
 
 ```sh
-bash "${CLAUDE_PLUGIN_ROOT}/lib/verify-html.sh" --profile deck <output>.html
+if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then _skill="$CLAUDE_PLUGIN_ROOT/skills/md-to-scrolldeck"; else _skill="${HERMES_SKILL_DIR}"; fi
+[ -n "$_skill" ] && [ -f "$_skill/lib/vendor/verify-html.sh" ] || { printf '[FAIL] skill dir unresolved — export CLAUDE_PLUGIN_ROOT=<plugin dir>\n' >&2; exit 1; }
+bash "$_skill/lib/vendor/verify-html.sh" --profile deck <output>.html
 ```
 
 It prints its own labels, and it covers the two cross-checks a plain `grep`

@@ -1,11 +1,11 @@
 """Render Excalidraw JSON to PNG using Playwright + headless Chromium.
 
-Usage:
-    cd "${CLAUDE_PLUGIN_ROOT}/skills/excalidraw-diagram/references"
+Usage (from this file's directory; render-validate.md resolves it):
+    cd <skill-dir>/references
     uv run python render_excalidraw.py <path-to-file.excalidraw> [--output path.png] [--scale 2] [--width 1920]
 
 First-time setup:
-    cd "${CLAUDE_PLUGIN_ROOT}/skills/excalidraw-diagram/references"
+    cd <skill-dir>/references
     uv sync
     uv run playwright install chromium
 """

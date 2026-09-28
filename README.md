@@ -152,7 +152,9 @@ part of the shared workflow — run via the `tests/*.sh` convention the shared
 workflow auto-discovers: `lib/verify-html.sh --selftest` through
 [`tests/verify-html-selftest.sh`](tests/verify-html-selftest.sh), and the
 guide-versus-`SKILL.md` drift guard in
-[`tests/skill-guides.sh`](tests/skill-guides.sh). Originally
+[`tests/skill-guides.sh`](tests/skill-guides.sh), and
+[`tests/vendor-drift.sh`](tests/vendor-drift.sh), which fails when a skill's
+vendored `lib/vendor/verify-html.sh` differs from `lib/verify-html.sh`. Originally
 tracked as
 [harness-skills#2](https://github.com/dEitY719/harness-skills/issues/2).
 
