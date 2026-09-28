@@ -65,11 +65,15 @@ for guide in docs/skill-guides/*.html; do
   # 1. The verifier invocation. SKILL.md owns the profile and the guide must
   #    send the reader to the same one. This is #34's headline drift: the
   #    guide still said "Run references/checklist.md before outputting".
-  profile=$(sed -n 's/.*verify-html\.sh" --profile \([a-z][a-z]*\).*/\1/p' "$md" | head -1)
-  if [ -n "$profile" ]; then
-    case "$text" in
-      *"verify-html.sh --profile $profile"*) pass "names verify-html.sh --profile $profile" ;;
-      *) fail "$md mandates 'verify-html.sh --profile $profile' but $guide never names it" ;;
+  #    The skill-relative path is part of the fact (#43): after the verifier
+  #    moved to lib/vendor/, a guide still saying "lib/verify-html.sh
+  #    --profile viz" matched the old bare-name substring and passed. Quotes
+  #    are dropped from the guide so `"$_skill/lib/..." --profile` matches too.
+  verifier=$(sed -n 's/.*[/"]\(lib\/[a-z/-]*verify-html\.sh\)" --profile \([a-z][a-z]*\).*/\1 --profile \2/p' "$md" | head -1)
+  if [ -n "$verifier" ]; then
+    case "$(printf '%s' "$text" | tr -d '"')" in
+      *"$verifier"*) pass "names $verifier" ;;
+      *) fail "$md mandates '$verifier' but $guide never names it" ;;
     esac
   fi
 

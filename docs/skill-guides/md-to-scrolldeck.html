@@ -122,6 +122,8 @@
     .step h4 { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
     .step p { color: var(--text-secondary); font-size: 0.93rem; }
     .step code { background: var(--code-bg); padding: 1px 6px; border-radius: 5px; font-size: 0.82rem; }
+    .step pre { background: var(--code-bg); border: 1px solid var(--border); border-radius: 10px; padding: 12px 14px; margin: 10px 0; overflow-x: auto; font-size: 0.82rem; line-height: 1.5; }
+    .step pre code { background: none; padding: 0; }
 
     /* ===== CHROME CHIPS ===== */
     .chips { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -267,7 +269,7 @@
           <p>
             Copy <code>scroll-deck-skeleton.md</code> and replace its
             <code>YOUR ... HERE</code> tokens. The chrome is load-bearing and the
-            checklist greps for it.
+            shared verifier greps for most of it.
           </p>
           <span class="tag-critical">Critical</span>
         </div>
@@ -295,8 +297,9 @@
           <span class="rnum">R04</span>
           <h4>Never invent content</h4>
           <p>
-            Every figure, name, and quote comes from the source document. A slide
-            with no source line range is a slide that gets cut.
+            Every figure, name, and quote comes from the source document — never
+            placeholder text or invented figures. A slide with no source line
+            range is a slide that gets cut.
           </p>
           <span class="tag-critical">Critical</span>
         </div>
@@ -327,11 +330,12 @@
         </div>
         <div class="card req-card">
           <span class="rnum">R08</span>
-          <h4>Verify before reporting</h4>
+          <h4>Verifier must exit 0</h4>
           <p>
-            Run the checklist greps against the file just written. Any failure is
-            fixed and rewritten first — never report a broken dot rail as
-            <code>[OK]</code>. Waived items are <code>[WARN]</code>, never silent.
+            Run the shared verifier with <code>--profile deck</code> against the
+            file just written. Every <code>[FAIL]</code> is fixed and rewritten
+            first — never report a broken dot rail as <code>[OK]</code>. Waived
+            checklist items are <code>[WARN]</code>, never silent.
           </p>
           <span class="tag-critical">Critical</span>
         </div>
@@ -374,8 +378,8 @@
           <h4><span class="pico"><svg class="i" viewBox="0 0 24 24"><rect x="3" y="3" width="18" height="18" rx="2"/><path d="M3 9h18"/></svg></span>Fixed skeleton</h4>
           <p>
             Progress bar, phase header, dot rail, observer, print styles — all
-            copied, never improvised. The checklist verifies each one is still
-            wired.
+            copied, never improvised. <code>references/checklist.md</code>
+            enumerates every piece and the verifier checks each one is still wired.
           </p>
         </div>
         <div class="card principle">
@@ -458,11 +462,17 @@
           <div>
             <h4>Build, write once, verify, deliver</h4>
             <p>
-              Fill the skeleton, write the file in one call, then run
-              <code>bash lib/verify-html.sh --profile deck &lt;out&gt;.html</code>, which
-              must exit 0 — every <code>[FAIL]</code> gets fixed and rewritten before
-              you report. Then the judgement items in
-              <code>references/checklist.md</code>, open it, and report
+              Fill the skeleton, write the file in one call, then run the
+              skill-relative verifier, which must exit 0 — every
+              <code>[FAIL]</code> gets fixed and rewritten before you report:
+            </p>
+            <pre><code>bash "$_skill/lib/vendor/verify-html.sh" --profile deck &lt;out&gt;.html</code></pre>
+            <p>
+              <code>$_skill</code> is resolved by the guard block atop
+              <code>references/checklist.md</code> (from
+              <code>CLAUDE_PLUGIN_ROOT</code>, else
+              <code>HERMES_SKILL_DIR</code>). Then the judgement items in that
+              checklist, open the file, and report
               <code>slides=&lt;n&gt;</code> with the <code>file://</code> URL, the
               slide-id list, and what was cut.
             </p>
@@ -535,8 +545,8 @@
     <section data-reveal>
       <div class="sec-head"><span class="sec-num">06</span><h2>What every deck ships with</h2></div>
       <p class="sec-sub">
-        Load-bearing chrome from the skeleton. The pre-flight checklist greps for
-        each of these by name.
+        Load-bearing chrome from the skeleton. The shared verifier greps for
+        most of these by name.
       </p>
       <div class="chips">
         <span class="chip">Top progress bar</span>
@@ -562,8 +572,8 @@
       <div class="sec-head"><span class="sec-num">07</span><h2>Pre-flight checklist</h2></div>
       <p class="sec-sub">
         Five groups, verified against the written file rather than from memory.
-        The shared <code>lib/verify-html.sh --profile deck</code> greps most of
-        them; the rest are judgement calls.
+        The skill's vendored <code>lib/vendor/verify-html.sh --profile deck</code>
+        greps most of them; the rest are judgement calls.
       </p>
 
       <div class="grid grid-3">
@@ -614,9 +624,10 @@
         <div class="card">
           <h4 style="font-size:1.05rem;font-weight:700;margin-bottom:8px;">The common bug</h4>
           <p class="text-secondary" style="font-size:0.9rem;">
-            Getting the cue chain off by one. Dot hrefs resolving to real slide
-            ids, and each cue pointing at the <em>next</em> slide rather than any
-            slide, are worth a throwaway script when the deck is long.
+            Getting the cue chain off by one. The verifier cross-checks what a
+            plain grep cannot: every dot <code>href</code> resolving to a real
+            slide id in slide order, and each <code>.next-cue</code> pointing at
+            the <em>next</em> slide rather than any slide.
           </p>
         </div>
       </div>
@@ -632,8 +643,9 @@
           <h4 style="font-size:1.08rem;font-weight:700;margin-bottom:8px;">visuals:visualize</h4>
           <p class="text-secondary" style="font-size:0.92rem;">
             The general-purpose sibling for dashboards, infographics, posters, and
-            horizontal decks. Use it when the output is not a vertical scroll deck
-            — including when the source is too short to be one.
+            horizontal decks; this skill owns the vertical scroll deck only. Use it
+            when the output is not a vertical scroll deck — including when the
+            source is too short to be one.
           </p>
         </div>
         <div class="card">

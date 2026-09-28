@@ -101,6 +101,7 @@
     }
     .warn-banner .ico { font-size: 1.6rem; line-height: 1; }
     .warn-banner strong { color: var(--negative); }
+    .warn-banner code, .step code { overflow-wrap: anywhere; }
 
     /* ===== PRINCIPLES ===== */
     .principle h4 { display: flex; align-items: center; gap: 10px; font-size: 1.08rem; font-weight: 700; margin-bottom: 6px; }
@@ -115,6 +116,7 @@
     .step .sdot { width: 48px; height: 48px; border-radius: 50%; background: var(--surface); border: 2px solid var(--accent); color: var(--accent); display: grid; place-items: center; font-weight: 700; font-family: 'JetBrains Mono', monospace; z-index: 1; }
     .step h4 { font-size: 1.1rem; font-weight: 700; margin-bottom: 4px; }
     .step p { color: var(--text-secondary); font-size: 0.93rem; }
+    .step > div { min-width: 0; }
 
     /* ===== TYPES CHIPS ===== */
     .chips { display: flex; flex-wrap: wrap; gap: 10px; }
@@ -198,10 +200,11 @@
     <header class="hero">
       <div class="badge animate"><span class="dot"></span>SKILL.md &nbsp;·&nbsp; v0.3.2 &nbsp;·&nbsp; MIT</div>
       <h1 class="animate delay-1">Visualize</h1>
-      <p class="lede animate delay-2">Turn any idea, data, or content into a stunning single-file HTML visualization.</p>
+      <p class="lede animate delay-2">Create a self-contained HTML file — dashboard, infographic, deck. Invoke with <code>/visuals:visualize</code>, “visualize this”, or “이거 시각화해줘”.</p>
       <div class="meta-row animate delay-3">
         <span class="pill"><strong>Author</strong> careerhackeralex</span>
         <span class="pill"><strong>Category</strong> document-creation</span>
+        <span class="pill"><strong>Model</strong> sonnet tier</span>
         <span class="pill"><strong>Tags</strong> visualization · html · slides · dashboard · infographic</span>
       </div>
     </header>
@@ -209,13 +212,13 @@
     <!-- CRITICAL REQUIREMENTS -->
     <section data-reveal>
       <div class="sec-head"><span class="sec-num">01</span><h2>Critical Requirements</h2></div>
-      <p class="sec-sub">Non-negotiable. Each visualization must include every one of these — always start from <code>references/skeleton.md</code>.</p>
+      <p class="sec-sub">Followed for every visualization — the full list lives in <code>references/requirements.md</code>. Always start from <code>references/skeleton.md</code>.</p>
 
       <div class="warn-banner">
         <span class="ico">⚠️</span>
         <div>
           <strong>Never write this HTML from scratch.</strong>
-          <p class="text-secondary" style="margin-top:4px; font-size:0.92rem;">Copy skeleton → replace “YOUR CONTENT HERE” → save file. Then <code>bash lib/verify-html.sh --profile viz &lt;out&gt;.html</code> must exit 0, and the human-judgement items in <code>references/checklist.md</code> are checked by hand.</p>
+          <p class="text-secondary" style="margin-top:4px; font-size:0.92rem;">Start from the skeleton, fill its content slot, save one file. Then <code>bash "$_skill/lib/vendor/verify-html.sh" --profile viz &lt;out&gt;.html</code> must exit 0 — <code>$_skill</code> is resolved by the guard block atop <code>references/checklist.md</code> (<code>$CLAUDE_PLUGIN_ROOT/skills/visualize</code>, else <code>$HERMES_SKILL_DIR</code>). The human-judgement items in <code>references/checklist.md</code> are checked by hand.</p>
         </div>
       </div>
 
@@ -228,7 +231,7 @@
         <div class="card req-card">
           <span class="rnum">02</span>
           <h4>Utility Menu</h4>
-          <p><code>.viz-menu</code> with toggle + dropdown: download PNG (<code>downloadImage()</code>), print (<code>window.print()</code>), and the html-to-image CDN script.</p>
+          <p><code>.viz-menu</code> with <code>.viz-menu-toggle</code> + <code>.viz-menu-dropdown</code>: download PNG (<code>downloadImage()</code>), print (<code>window.print()</code>), and the html-to-image CDN script. Full implementation in <code>references/menu.md</code>.</p>
         </div>
         <div class="card req-card">
           <span class="rnum">03</span>
@@ -243,12 +246,12 @@
         <div class="card req-card">
           <span class="rnum">05</span>
           <h4>Chart.js (charts only)</h4>
-          <p>CDN before <code>&lt;/head&gt;</code>, <code>Chart.defaults.animation = false;</code> immediately after, ChartManager pattern preferred.</p>
+          <p>CDN before <code>&lt;/head&gt;</code>, <code>Chart.defaults.animation = false;</code> immediately after, ChartManager pattern preferred. See <code>references/chartjs-patterns.md</code>.</p>
         </div>
         <div class="card req-card">
           <span class="rnum">06</span>
           <h4>Responsive Design</h4>
-          <p>No horizontal overflow at 375px. Font hierarchy: <code>h1 ≥ 3rem</code>, <code>h2 ≥ 2rem</code>, <code>h3 ≥ 1.5rem</code>, body = 1rem.</p>
+          <p>No horizontal overflow at 375px. Font hierarchy: <code>h1 ≥ 3rem</code>, <code>h2 ≥ 2rem</code>, <code>h3 ≥ 1.5rem</code>, body = 1rem. See <code>references/sizing-rules.md</code>.</p>
         </div>
         <div class="card req-card">
           <span class="rnum">07</span>
@@ -263,7 +266,7 @@
         <div class="card req-card">
           <span class="rnum">09</span>
           <h4>JavaScript</h4>
-          <p><code>cycleTheme()</code>, <code>toggleMenu()</code>, and all top-level vars use <code>var</code> (never <code>let</code>/<code>const</code> — avoids TDZ errors with CDN libs).</p>
+          <p><code>cycleTheme()</code>, <code>toggleMenu()</code>, and all top-level variables in the generated HTML use <code>var</code> (never <code>let</code>/<code>const</code> — avoids TDZ errors with CDN-loaded libraries).</p>
         </div>
         <div class="card req-card">
           <span class="rnum">10</span>
@@ -308,7 +311,7 @@
     <!-- VISUALIZATION TYPES -->
     <section data-reveal>
       <div class="sec-head"><span class="sec-num">03</span><h2>Visualization Types</h2></div>
-      <p class="sec-sub">Choose the right format. When content arrives without a specified format: analyze → recommend 1–2 formats → wait for confirmation.</p>
+      <p class="sec-sub">Choose the right format — structural patterns in <code>references/types.md</code>, type-specific rules (Carousel, Slide Deck, Poster, Auto-Recommend, interactivity, layout variation) in <code>references/type-rules.md</code>. When content arrives without a specified format: analyze → recommend 1–2 formats → wait for confirmation.</p>
       <div class="chips">
         <span class="chip">Slide deck</span>
         <span class="chip">Presentation</span>
@@ -334,11 +337,12 @@
     <!-- OUTPUT RULES -->
     <section data-reveal>
       <div class="sec-head"><span class="sec-num">04</span><h2>Output Rules</h2></div>
-      <p class="sec-sub">Always start from the skeleton — never write HTML from scratch. Write exactly one <code>.html</code> file.</p>
+      <p class="sec-sub">Start from <code>references/skeleton.md</code> — never write HTML from scratch. Write exactly one <code>.html</code> file.</p>
       <ul class="rule-list">
         <li><span class="k">File input</span><span class="v"><code>/visualize /path/abc.md</code> → same directory, same basename, <code>.html</code> extension.</span></li>
         <li><span class="k">No input</span><span class="v">Save to <code>~/Downloads/</code> with a descriptive kebab-case name.</span></li>
         <li><span class="k">User path</span><span class="v">A user-specified output path is always honored.</span></li>
+        <li><span class="k">Libraries</span><span class="v">Reveal.js nav pattern and the full CDN library list live in <code>references/libraries.md</code>.</span></li>
         <li><span class="k">Graphics</span><span class="v">SVG for icons and simple graphics — never external image URLs unless the user provides them.</span></li>
       </ul>
     </section>
@@ -346,14 +350,15 @@
     <!-- DESIGN SYSTEM -->
     <section data-reveal>
       <div class="sec-head"><span class="sec-num">05</span><h2>Design System</h2></div>
-      <p class="sec-sub">Inter font mandatory · class-based theming only · minimum CSS variables below.</p>
+      <p class="sec-sub">Inter font mandatory · class-based theming only · minimum CSS variables below. Full specs in <code>references/design-system.md</code> and <code>references/css-techniques.md</code>.</p>
       <div class="grid grid-2">
         <div class="card">
           <h3 style="margin-bottom:10px;">Minimum CSS variables</h3>
-          <p class="text-secondary" style="font-size:0.92rem;">The core palette every visualization defines, available in both themes.</p>
+          <p class="text-secondary" style="font-size:0.92rem;">SKILL.md's minimum is <code>--bg/--surface/--text/--accent/--border</code>; requirement 01 names the full set, shown in both themes.</p>
           <div class="vars">
             <span class="swatch"><i style="background:var(--bg)"></i>--bg</span>
             <span class="swatch"><i style="background:var(--surface)"></i>--surface</span>
+            <span class="swatch"><i style="background:var(--border)"></i>--border</span>
             <span class="swatch"><i style="background:var(--text)"></i>--text</span>
             <span class="swatch"><i style="background:var(--accent)"></i>--accent</span>
             <span class="swatch"><i style="background:var(--accent-secondary)"></i>--accent-secondary</span>
@@ -370,6 +375,7 @@
             <li><span class="k">2</span><span class="v">Return URL: include <code>file://&lt;absolute-path&gt;</code> in the response.</span></li>
             <li><span class="k">3</span><span class="v">Do <strong>not</strong> echo the generated HTML into chat — summary, URL and open command only. See <code>references/bedrock-safe-write.md</code>.</span></li>
           </ul>
+          <p class="text-secondary" style="font-size:0.88rem; margin-top:14px;">Status line: <code>[OK] visuals:visualize type=&lt;…&gt; out=&lt;path&gt;</code> · on failure <code>[FAIL] visuals:visualize step=&lt;n&gt; detail=&lt;reason&gt;</code>.</p>
         </div>
       </div>
     </section>
@@ -389,7 +395,7 @@
       <div class="steps">
         <div class="step">
           <div class="sdot">1</div>
-          <div><h4>Understand</h4><p>Clarify message, audience, and format. If format is unclear, run Auto-Recommend.</p></div>
+          <div><h4>Understand</h4><p>Message, audience, format. If format is unclear, run Auto-Recommend from <code>references/type-rules.md</code> and wait for confirmation — never guess a format.</p></div>
         </div>
         <div class="step">
           <div class="sdot">2</div>
@@ -405,9 +411,10 @@
         </div>
         <div class="step">
           <div class="sdot">5</div>
-          <div><h4>Verify</h4><p><code>bash lib/verify-html.sh --profile viz &lt;out&gt;.html</code> must exit 0, then the human-judgement items in <code>references/checklist.md</code>.</p></div>
+          <div><h4>Verify</h4><p><code>bash "$_skill/lib/vendor/verify-html.sh" --profile viz &lt;out&gt;.html</code> must exit 0 (resolve <code>$_skill</code> with the guard block atop <code>references/checklist.md</code>), then the human-judgement items in <code>references/checklist.md</code>.</p></div>
         </div>
       </div>
+      <p class="text-secondary" style="font-size:0.9rem;">Chart.js patterns → <code>references/chartjs-patterns.md</code> · Debugging → <code>references/debugging.md</code> · Bedrock-safe delivery → <code>references/bedrock-safe-write.md</code></p>
     </section>
 
     <!-- RELATED SKILLS -->
@@ -424,6 +431,7 @@
           <p class="text-secondary" style="font-size:0.92rem;">When the deliverable is an <code>.excalidraw</code> file rather than HTML.</p>
         </div>
       </div>
+      <p class="text-secondary" style="font-size:0.9rem; margin-top:14px;">In-chat charts and Artifacts go to the built-in dataviz instead.</p>
     </section>
 
     <footer>
