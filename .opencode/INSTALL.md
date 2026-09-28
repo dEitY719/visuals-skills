@@ -56,7 +56,7 @@ call, and never echoes the generated HTML or `.excalidraw` JSON back into chat.
 - `visualize` and `md-to-scrolldeck` auto-open the file they wrote (`xdg-open`
   on Linux/WSL, `open` on macOS). In a headless OpenCode session that step is a
   no-op — report the `file://` path instead.
-- `${CLAUDE_PLUGIN_ROOT}` is a Claude Code variable and is unset here. Wherever a skill writes it — `excalidraw-diagram`'s render command and both HTML skills' `lib/verify-html.sh` call — substitute the directory this plugin was installed into, the one holding `skills/` and `lib/`.
+- `${CLAUDE_PLUGIN_ROOT}` is a Claude Code variable and is unset here. Every skill command that uses it (`excalidraw-diagram`'s render command, both HTML skills' vendored `lib/vendor/verify-html.sh` call) resolves the skill directory from `CLAUDE_PLUGIN_ROOT`, else `HERMES_SKILL_DIR`, and prints `[FAIL] skill dir unresolved` otherwise — export `CLAUDE_PLUGIN_ROOT` as the directory this plugin was installed into (the one holding `skills/`) before running it.
 - `excalidraw-diagram` Step 5 renders the diagram to PNG with
   `uv run python render_excalidraw.py` and then reads the image back to audit
   it. If your OpenCode session cannot read images, say so and skip the visual
