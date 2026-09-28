@@ -5,7 +5,9 @@ You cannot judge a diagram from JSON alone. After generating or editing the Exca
 ## How to Render
 
 ```bash
-cd "${CLAUDE_PLUGIN_ROOT}/skills/excalidraw-diagram/references" && uv run python render_excalidraw.py <path-to-file.excalidraw>
+if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then _skill="$CLAUDE_PLUGIN_ROOT/skills/excalidraw-diagram"; else _skill="${HERMES_SKILL_DIR}"; fi
+[ -n "$_skill" ] && [ -f "$_skill/references/render_excalidraw.py" ] || { printf '[FAIL] skill dir unresolved — export CLAUDE_PLUGIN_ROOT=<plugin dir>\n' >&2; exit 1; }
+cd "$_skill/references" && uv run python render_excalidraw.py <path-to-file.excalidraw>
 ```
 
 This outputs a PNG next to the `.excalidraw` file. Then use the **Read tool** on the PNG to actually view it.
@@ -63,7 +65,9 @@ The loop is done when:
 If the render script hasn't been set up yet:
 
 ```bash
-cd "${CLAUDE_PLUGIN_ROOT}/skills/excalidraw-diagram"
+if [ -n "${CLAUDE_PLUGIN_ROOT:-}" ]; then _skill="$CLAUDE_PLUGIN_ROOT/skills/excalidraw-diagram"; else _skill="${HERMES_SKILL_DIR}"; fi
+[ -n "$_skill" ] && [ -f "$_skill/references/render_excalidraw.py" ] || { printf '[FAIL] skill dir unresolved — export CLAUDE_PLUGIN_ROOT=<plugin dir>\n' >&2; exit 1; }
+cd "$_skill"
 uv sync
 cd references && uv run playwright install chromium
 ```

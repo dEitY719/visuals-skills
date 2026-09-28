@@ -86,7 +86,7 @@ Run these in order. Stop and emit `[FAIL]` (see above) on an unresolved ambiguou
 2. **Start from skeleton** — [references/skeleton.md](references/skeleton.md). NEVER start blank; if it cannot be loaded, stop and emit `[FAIL]`.
 3. **Structure** — outline sections before filling the skeleton.
 4. **Build** — add content, charts, styles. All colors as CSS vars.
-5. **Verify** — `bash "${CLAUDE_PLUGIN_ROOT}/lib/verify-html.sh" --profile viz <out>.html` must exit 0, then the human-judgement items in [references/checklist.md](references/checklist.md).
+5. **Verify** — `bash "$_skill/lib/vendor/verify-html.sh" --profile viz <out>.html` (resolve `$_skill` with the guard block atop [references/checklist.md](references/checklist.md)) must exit 0, then the human-judgement items in [references/checklist.md](references/checklist.md).
 
 Chart.js patterns → [references/chartjs-patterns.md](references/chartjs-patterns.md) | Debugging → [references/debugging.md](references/debugging.md) | Bedrock-safe delivery → [references/bedrock-safe-write.md](references/bedrock-safe-write.md)
 
