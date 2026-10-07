@@ -65,6 +65,7 @@ Read `references/output-format.md` for output path rules, filename convention, a
 ### Step 3: Render & Validate (MANDATORY)
 
 Read `references/render-validate.md` for the full render-view-fix loop.
+After editing `references/render_excalidraw.py`, run its self-check: `python3 references/test_render_excalidraw.py`.
 
 ### Step 4: Final Quality Check
 
