@@ -391,6 +391,61 @@ it is what stops Korean headlines breaking mid-word.
       .card > strong { display: block; margin-bottom: 8px; font-size: 20px; font-weight: 700; }
       .card > p { font-size: var(--text-sm); line-height: 1.7; word-break: keep-all; }
 
+      /* Source strip: a kept paragraph's citation links (slide-curation.md,
+         Step D). Last child of .slide__inner; a fixed margin, not auto, so the
+         slide's content stays vertically centred. */
+      .slide__sources {
+        margin-top: clamp(26px, 4vh, 44px);
+        padding-top: 12px;
+        border-top: 1px solid var(--line);
+        color: var(--ink-muted);
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        line-height: 1.5;
+        word-break: keep-all;
+      }
+      .slide__sources a { text-underline-offset: 3px; }
+      .slide--dark .slide__sources {
+        border-top-color: var(--line-dark);
+        color: rgba(246, 244, 237, 0.55);
+      }
+
+      /* Matrix: a source table of ● / blank cells. Dots on wide screens, the
+         same facts as a list on narrow ones - exactly one of the two shows. */
+      .matrix { width: 100%; border-collapse: collapse; font-size: var(--text-sm); }
+      .matrix th,
+      .matrix td { padding: 12px 14px; border-bottom: 1px solid var(--line); text-align: center; }
+      .matrix thead th {
+        color: var(--ink-muted);
+        font-family: var(--mono);
+        font-size: var(--text-xs);
+        font-weight: 700;
+      }
+      .matrix th:first-child { text-align: left; }
+      .slide--dark .matrix th,
+      .slide--dark .matrix td { border-bottom-color: var(--line-dark); }
+      .use-dot {
+        display: inline-block;
+        width: 12px;
+        height: 12px;
+        border-radius: 50%;
+        background: var(--signal);
+      }
+      .usage-list { display: none; list-style: none; }
+      .usage-list li { padding: 12px 0; border-bottom: 1px solid var(--line); }
+      .usage-list strong { display: block; }
+      .sr-only {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        margin: -1px;
+        padding: 0;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+        border: 0;
+      }
+
       /* --- scroll cue --- */
       .next-cue {
         position: absolute;
@@ -467,6 +522,8 @@ it is what stops Korean headlines breaking mid-word.
         .eyebrow span:last-child { display: none; }
         .next-cue { right: 20px; bottom: 18px; }
         .next-cue span { display: none; }
+        .matrix { display: none; }
+        .usage-list { display: block; }
       }
 
       @media (prefers-reduced-motion: reduce) {
@@ -718,6 +775,37 @@ Standard content slide — reuse `.section-heading` for every non-hero slide:
 </section>
 ```
 
+Source strip — a kept paragraph's citation links, last child of
+`.slide__inner` (rule: `slide-curation.md` → Step D):
+
+```html
+    <footer class="slide__sources">
+      <a href="https://SOURCE-URL" target="_blank" rel="noopener noreferrer">SOURCE NAME</a> ·
+      <a href="https://SOURCE-URL" target="_blank" rel="noopener noreferrer">SOURCE NAME</a>
+    </footer>
+```
+
+Matrix — a `●` / blank source table; the 767px media query swaps the table
+for the list. Cell labels go in the deck's language:
+
+```html
+    <div class="reveal">
+      <table class="matrix">
+        <thead><tr><th scope="col">ROW HEADER</th><th scope="col">COLUMN A</th><th scope="col">COLUMN B</th></tr></thead>
+        <tbody>
+          <tr>
+            <th scope="row">ROW TITLE</th>
+            <td><span class="use-dot" role="img" aria-label="사용"></span></td>
+            <td><span class="sr-only">사용 안 함</span></td>
+          </tr>
+        </tbody>
+      </table>
+      <ul class="usage-list">
+        <li><strong>ROW TITLE</strong>COLUMN A</li>
+      </ul>
+    </div>
+```
+
 Variant rotation — alternate so consecutive slides never look identical.
 A good default rhythm for a 12–16 slide scroll deck:
 
@@ -737,3 +825,4 @@ hero(dark) -> paper -> soft -> paper -> dark -> paper -> soft
 6. Each slide gets `aria-labelledby` matching its own `h1`/`h2` id.
 7. `.reveal` is applied to direct children of `.slide__inner` only — the
    `nth-child` delays are relative to that parent.
+8. Every link in a `.slide__sources` strip is an absolute `https://` URL.

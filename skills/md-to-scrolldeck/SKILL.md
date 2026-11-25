@@ -43,12 +43,13 @@ already exists, but say so in the final report.
 
 Read the **entire** document first — you need the ending to know what the
 opening should set up. Then apply `references/slide-curation.md` to compress
-it into narrative beats; this is the skill's main quality lever, not a
-1:1 heading→slide `map()` (see that file for why).
+it into narrative beats (citation links kept as a source strip, `●` tables as
+a matrix); this is the main quality lever, not a 1:1 heading→slide `map()`.
 
 Print the **nav-dot outline** (id, label, archetype, `data-phase`, source
 lines, plus what was cut — format in `slide-curation.md` → Step C) before
-writing any HTML.
+writing any HTML. First run that Step C's line-count check on the source
+ranges; a range past the end of the file is `[FAIL]` — fix the outline.
 
 - `--outline-only` → stop here.
 - Fewer than 5 beats → `[WARN] too short — visuals:visualize one-pager fits better` and ask before continuing.

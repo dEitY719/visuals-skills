@@ -28,8 +28,16 @@ from memory.
 - [ ] Slide count is between 5 and 20, and matches the outline?
 - [ ] Slides are narrative beats, not a 1:1 copy of the source headings?
 - [ ] Reference lists / link dumps / appendices were cut, and the cuts were
-      reported?
-- [ ] Every slide traces to a source line range — nothing invented?
+      reported? (A kept paragraph's trailing citation links are not a dump:
+      they sit in that slide's `.slide__sources` strip, not in the body.)
+- [ ] Every slide traces to a source line range — nothing invented — and the
+      ranges passed the line-count check in `slide-curation.md` → Step C
+      before any HTML was written?
+- [ ] Every `.slide__sources` link opens in a new tab with
+      `rel="noopener noreferrer"`? (The verifier checks they are absolute.)
+- [ ] A source table of only `●` / blank cells became a matrix slide whose
+      list replaces the table at 390px; a table with any other cell value
+      stayed an ordinary table?
 - [ ] Reading the headlines in order tells a coherent story?
 - [ ] One idea per slide, headline <= ~10 words, body <= ~40 words?
 - [ ] Slide variants alternate — no three consecutive identical treatments?

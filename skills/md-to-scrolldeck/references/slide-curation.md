@@ -35,7 +35,9 @@ know what the opening should set up. While reading, note:
 - the ask / call to action (this becomes the closing slide)
 - 3–5 structural phases (`WHY` → `WHAT` → `NOW` → `NEXT` → `START`); these
   become `data-phase` values and give the deck a shape
-- anything that is reference material, appendix, links, or changelog — cut
+- anything that is reference material, appendix, a link dump, or changelog —
+  cut. A paragraph's trailing citation links are not a dump: they survive as
+  that slide's source strip (Step D)
 
 ## Step B — pick the beats
 
@@ -64,7 +66,9 @@ about 5 rows and its rows are the actual content.
 
 **Cut** when: it is a reference list, a link dump, a caveat only the author
 cares about, or repeats a point already made. Cutting is the skill. Tell
-the user what you cut in the outline so they can veto it.
+the user what you cut in the outline so they can veto it. The citation links
+that close a kept paragraph are the one exception — they move to the source
+strip instead (Step D), so the slide's claim can still be checked.
 
 ## Step C — draft the nav-dot outline BEFORE any HTML
 
@@ -92,6 +96,23 @@ the `data-phase`, and which source lines it draws from. The source-line
 column is what keeps you honest — a slide with no source range is a slide
 you invented.
 
+**Check the ranges mechanically before printing the outline.** A range you
+wrote from memory can point past the end of the file, and nothing downstream
+notices. Count the lines with `awk` (`wc -l` misses a last line that has no
+newline), then feed every slide's `start-end`:
+
+```sh
+total=$(awk 'END { print NR }' "<input.md>")
+printf '%s\n' 1-33 35-49 51-66 | awk -F- -v t="$total" '
+  $1 < 1 || $2 > t || $1 > $2 { printf "[FAIL] outline source range L%s (file has %d lines)\n", $0, t; bad = 1 }
+  END { exit bad }'
+```
+
+Any `[FAIL]` is fixed in the outline before a line of HTML is written. Ranges
+may overlap a little — a hero line often reappears — but two slides that share
+more than half of the smaller range are probably one beat drawn twice: merge
+them, or say in the outline why they are two.
+
 ## Step D — slide archetypes
 
 Pick one per beat. The vocabulary is borrowed from standard deck practice;
@@ -109,6 +130,7 @@ carousel and no per-slide click zones.
 | **quote/statement** | the thesis sentence, verbatim from the doc | `blockquote.statement` alone on a `--soft` slide |
 | **process** | ordered steps the audience must follow | numbered `.card-grid` or an `<ol>` |
 | **roadmap** | time-phased plan (now / 3mo / 1yr) | horizontal track + `.status-pill--now/next/vision` |
+| **matrix** | a source table whose cells are only `●` or empty | `table.matrix` + `ul.usage-list` (below) |
 | **closing** | the ask, this week's action | `.slide--action.slide--dark`, no `.next-cue` |
 
 Rules that keep archetypes from degenerating:
@@ -123,6 +145,46 @@ Rules that keep archetypes from degenerating:
 - **Every number, name, and quote comes from the source.** Compression is
   allowed; invention is not. If a slide needs a figure the document does
   not contain, cut the slide.
+
+### Source strip — keep a paragraph's citations, not the link dump
+
+A source paragraph often ends with the links that back it, joined by `·`
+after the closing punctuation:
+
+```
+... 지난 분기 대비 처리량이 두 배가 됐다. [주간 리포트](https://…) · [회고 보드](https://…)
+```
+
+Only that shape qualifies: links after a sentence that ends in `.` `?` `!`
+(or a closing `**`), separated by `·`. Take them out of the body and put them
+in a `<footer class="slide__sources">` as the last child of that slide's
+`.slide__inner` — same link text, same absolute URLs, joined by ` · `, each
+with `target="_blank" rel="noopener noreferrer"`. Markup and style:
+`scroll-deck-skeleton.md` → Slide block patterns. The verifier fails a
+relative or `#` href in the strip.
+
+Everything else stays a cut: a section that is a list of links, a
+"References" appendix, a link in the middle of a sentence. Report those cuts
+in the outline as before.
+
+### Matrix — a `●` table as dots, and as a list on a phone
+
+When a source table marks membership with `●` and blanks (task x asset,
+skill x feature), render it as the **matrix** archetype: the same facts twice,
+exactly one copy visible.
+
+- Wide screens: `<table class="matrix">`, row headers as `<th scope="row">`,
+  each `●` as `<span class="use-dot" role="img" aria-label="…">` and each
+  blank as `<span class="sr-only">…</span>`, both labels in the deck's
+  language (`사용` / `사용 안 함`), so a screen reader hears every cell.
+- Narrow screens: `<ul class="usage-list">`, one `<li>` per row — the row
+  title, then the columns it marks. The skeleton's 767px media query hides the
+  table and shows the list.
+
+If any cell holds something other than `●` or blank — a number, `full`, a
+note — do not force it into dots: render an ordinary table with the
+`content` archetype instead. The deck takes whatever document it is given,
+so a mixed table is a fallback, never a refusal.
 
 ## Step E — sanity-read the deck as a story
 
