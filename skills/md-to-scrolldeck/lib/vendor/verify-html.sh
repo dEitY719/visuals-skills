@@ -153,6 +153,20 @@ HTML
   expect_line "sibling -card:hover transform allowed" viz "$tmp/sibling-card.html" \
     "[OK] .card:hover has no transform"
 
+  # 11. #48: a .slide__sources citation must be an absolute URL. The strip
+  #     wraps its attributes and carries a second class, as formatted files do.
+  cat >"$tmp/sources-ok.html" <<'HTML'
+<section class="slide" id="a"><footer
+  class="slide__sources reveal"><a href="https://example.com/a" target="_blank"
+  rel="noopener noreferrer">A</a> · <a href="http://example.com/b">B</a></footer>
+<a href="docs/not-a-source.md">body link, not checked</a></section>
+HTML
+  expect_line "absolute slide__sources links accepted" deck "$tmp/sources-ok.html" \
+    "[OK] slide__sources links absolute (2)"
+  sed 's|https://example.com/a|docs/a.md|' "$tmp/sources-ok.html" >"$tmp/sources-rel.html"
+  expect_line "relative slide__sources link caught" deck "$tmp/sources-rel.html" \
+    "[FAIL] slide__sources links absolute"
+
   if [ "$fails" -eq 0 ]; then
     printf '[OK] verify-html selftest: all cases passed\n'
     exit 0
@@ -346,7 +360,7 @@ check_viz() {
 }
 
 check_deck() {
-  local n slides dots cues flat miss tok want got i unresolved cue_ids slide_ids
+  local n slides dots cues flat miss tok want got i unresolved cue_ids slide_ids srcs hits
 
   # Match on the class attribute, NOT on '<section class="slide' - a formatted
   # file wraps the attributes onto their own lines and that pattern undercounts.
@@ -440,6 +454,24 @@ check_deck() {
     ok "next-cue chain"
   else
     bad "next-cue chain" "$miss"
+  fi
+
+  # A .slide__sources strip carries a paragraph's citation links (#48). The
+  # deck is opened from wherever it was written, so a relative or #anchor href
+  # there is a dead citation; only absolute http(s) URLs survive the move.
+  # Tags are flattened first so a strip whose attributes wrap is still found.
+  srcs=$(flatten_tags | awk '
+    !inside && /class="([^"]*[[:space:]])?slide__sources[[:space:]"]/ {
+      inside = 1; t = $0; sub(/^</, "", t); sub(/[[:space:]>].*/, "", t); next }
+    inside && index($0, "</" t) == 1 { inside = 0; next }
+    inside && /^<a[[:space:]>]/ { print }')
+  n=$(grep -c . <<<"$srcs" || true)
+  hits=$(grep -vE '[[:space:]]href="https?://' <<<"$srcs" |
+    sed -n 's/^\(<a[^>]*\)>.*/\1>/p' | head -3 | tr '\n' ' ' || true)
+  if [ -z "$hits" ]; then
+    ok "slide__sources links absolute ($n)"
+  else
+    bad "slide__sources links absolute" "non-absolute link(s) in .slide__sources: ${hits% }"
   fi
 }
 

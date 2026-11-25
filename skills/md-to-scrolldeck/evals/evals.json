@@ -34,6 +34,27 @@
         "No HTML markup from the generated file appears in the assistant's chat response",
         "The final response contains a file:// URL for the generated deck"
       ]
+    },
+    {
+      "id": 2,
+      "prompt": "이 문서를 리더 보고용 스크롤 덱으로 만들어줘: evals/files/visuals-skills-architecture.md",
+      "expected_output": "A vertical scroll-snap deck written as visuals-skills-architecture.html next to the input. Paragraph-ending citation links joined by '·' survive as a .slide__sources footnote strip on the slide that uses that paragraph; the closing 참고 자료 link list is cut and reported. The ● / blank asset table renders as the matrix archetype (dots on wide screens, a .usage-list at 390px); the harness-support table, whose cells hold 'full' / 'needs image read-back', renders as an ordinary table instead. The outline's source ranges pass the line-count check before any HTML is written.",
+      "files": [
+        "evals/files/visuals-skills-architecture.md"
+      ],
+      "expectations": [
+        "A nav-dot outline with a source line range per slide is printed before the HTML file is written, and every range ends at or before the input's last line",
+        "The slide count is between 5 and 8 inclusive",
+        "At least one slide contains a '.slide__sources' element holding links whose text matches the source's paragraph-ending citations (e.g. 'vendor-drift.sh', 'verify-html.sh')",
+        "Every <a> inside a .slide__sources element has an absolute https:// href, target=\"_blank\" and rel=\"noopener noreferrer\"",
+        "The citation link text does not also appear as a link inside the slide body outside .slide__sources",
+        "No slide carries the 참고 자료 link list (docs.claude.com, skill-check.yml, the dotfiles repo link), and the outline's cut list names it",
+        "The asset table is rendered as a table with class 'matrix' containing '.use-dot' spans with role=\"img\" and an aria-label, and a '.sr-only' text for each blank cell",
+        "The same slide contains a 'ul.usage-list' with one <li> per table row",
+        "At a 390px viewport the .matrix table is hidden and the .usage-list is visible; above 767px the reverse",
+        "The harness-support table (cells 'full' / 'needs image read-back') is not rendered with .use-dot spans; it stays an ordinary table or card layout",
+        "bash lib/vendor/verify-html.sh --profile deck on the output exits 0, including the '[OK] slide__sources links absolute' line"
+      ]
     }
   ]
 }
