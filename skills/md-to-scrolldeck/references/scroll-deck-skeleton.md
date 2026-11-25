@@ -552,6 +552,9 @@ it is what stops Korean headlines breaking mid-word.
         .slide { min-height: 100vh; break-after: page; page-break-after: always; overflow: hidden; }
         .slide__inner { min-height: 100vh; padding: 52px 58px; }
         .reveal { opacity: 1 !important; transform: none !important; }
+        /* A printed page can be narrower than 767px; always print the table. */
+        .matrix { display: table !important; }
+        .usage-list { display: none !important; }
         .slide--dark,
         .slide--hero,
         .slide--vision,

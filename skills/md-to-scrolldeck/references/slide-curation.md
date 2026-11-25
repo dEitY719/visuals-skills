@@ -100,12 +100,12 @@ you invented.
 wrote from memory can point past the end of the file, and nothing downstream
 notices. Count the lines with `awk` (`wc -l` misses a last line that has no
 newline), then feed every slide's range as the outline prints it (`L1-33`,
-or `L12` for a single line):
+or `L12` for a single line; an en dash `L1–33` is read as a hyphen):
 
 ```sh
 total=$(awk 'END { print NR }' "<input.md>")
-printf '%s\n' L1-33 L35-49 L51-66 | awk -F- -v t="$total" '
-  { gsub(/L/, ""); s = $1 + 0; e = (NF > 1 ? $2 : $1) + 0 }
+printf '%s\n' L1-33 L35-49 L51-66 | awk -v t="$total" '
+  { gsub(/L/, ""); gsub(/–/, "-"); n = split($0, r, "-"); s = r[1] + 0; e = (n > 1 ? r[2] : r[1]) + 0 }
   s < 1 || e > t || s > e { printf "[FAIL] outline source range L%s (file has %d lines)\n", $0, t; bad = 1 }
   END { exit bad }'
 ```
@@ -132,7 +132,7 @@ carousel and no per-slide click zones.
 | **quote/statement** | the thesis sentence, verbatim from the doc | `blockquote.statement` alone on a `--soft` slide |
 | **process** | ordered steps the audience must follow | numbered `.card-grid` or an `<ol>` |
 | **roadmap** | time-phased plan (now / 3mo / 1yr) | horizontal track + `.status-pill--now/next/vision` |
-| **matrix** | a source table whose cells are only `●` or empty | `table.matrix` + `ul.usage-list` (below) |
+| **matrix** | a source table whose data cells (all but the row-header column) are only `●` or empty | `table.matrix` + `ul.usage-list` (below) |
 | **closing** | the ask, this week's action | `.slide--action.slide--dark`, no `.next-cue` |
 
 Rules that keep archetypes from degenerating:
@@ -165,14 +165,20 @@ with `target="_blank" rel="noopener noreferrer"`. Markup and style:
 `scroll-deck-skeleton.md` → Slide block patterns. The verifier fails a
 relative or `#` href in the strip.
 
+A citation whose URL in the source is relative (`[spec](docs/spec.md)`) has no
+absolute form you can know: do not guess a host or repo for it. Keep its link
+text in the strip as plain text, without an `<a>`, and add
+`[WARN] relative citation kept as text: <url>` to the outline, so the source
+stays named and the reader is told why it is not clickable.
+
 Everything else stays a cut: a section that is a list of links, a
 "References" appendix, a link in the middle of a sentence. Report those cuts
 in the outline as before.
 
 ### Matrix — a `●` table as dots, and as a list on a phone
 
-When a source table marks membership with `●` and blanks (task x asset,
-skill x feature), render it as the **matrix** archetype: the same facts twice,
+When a source table marks membership with `●` and blanks in every cell
+outside its row-header column (task x asset, skill x feature), render it as the **matrix** archetype: the same facts twice,
 exactly one copy visible.
 
 - Wide screens: `<table class="matrix">`, row headers as `<th scope="row">`,
