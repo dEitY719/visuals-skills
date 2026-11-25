@@ -34,7 +34,8 @@ from memory.
       ranges passed the line-count check in `slide-curation.md` → Step C
       before any HTML was written?
 - [ ] Every `.slide__sources` link opens in a new tab with
-      `rel="noopener noreferrer"`? (The verifier checks they are absolute.)
+      `rel="noopener noreferrer"`, and a relative source URL was kept as plain
+      text with a `[WARN]`? (The verifier checks absolute href, `target`, `rel`.)
 - [ ] A source table of only `●` / blank cells became a matrix slide whose
       list replaces the table at 390px; a table with any other cell value
       stayed an ordinary table?

@@ -53,7 +53,7 @@
         "The same slide contains a 'ul.usage-list' with one <li> per table row",
         "At a 390px viewport the .matrix table is hidden and the .usage-list is visible; above 767px the reverse",
         "The harness-support table (cells 'full' / 'needs image read-back') is not rendered with .use-dot spans; it stays an ordinary table or card layout",
-        "bash lib/vendor/verify-html.sh --profile deck on the output exits 0, including the '[OK] slide__sources links absolute' line"
+        "bash lib/vendor/verify-html.sh --profile deck on the output exits 0, and its '[OK] slide__sources links absolute (N)' line has N of at least 1 (a count of 0 means no strip was found)"
       ]
     }
   ]
