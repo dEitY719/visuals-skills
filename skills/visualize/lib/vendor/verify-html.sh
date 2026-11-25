@@ -158,13 +158,27 @@ HTML
   cat >"$tmp/sources-ok.html" <<'HTML'
 <section class="slide" id="a"><footer
   class="slide__sources reveal"><a href="https://example.com/a" target="_blank"
-  rel="noopener noreferrer">A</a> · <a href="http://example.com/b">B</a></footer>
+  rel="noopener noreferrer">A</a> · <a href='HTTP://example.com/b' target=_blank
+  rel='noopener'>B</a></footer>
 <a href="docs/not-a-source.md">body link, not checked</a></section>
 HTML
   expect_line "absolute slide__sources links accepted" deck "$tmp/sources-ok.html" \
     "[OK] slide__sources links absolute (2)"
+  expect_line "slide__sources rel/target accepted" deck "$tmp/sources-ok.html" \
+    "[OK] slide__sources links open in a new tab with rel=noopener (2)"
   sed 's|https://example.com/a|docs/a.md|' "$tmp/sources-ok.html" >"$tmp/sources-rel.html"
   expect_line "relative slide__sources link caught" deck "$tmp/sources-rel.html" \
+    "[FAIL] slide__sources links absolute"
+  sed 's|rel="noopener noreferrer"|rel="noreferrer"|' "$tmp/sources-ok.html" >"$tmp/sources-rel2.html"
+  expect_line "slide__sources link without noopener caught" deck "$tmp/sources-rel2.html" \
+    "[FAIL] slide__sources links open in a new tab"
+  # 12. PR #49 review: a single-quoted class, and a nested element of the
+  #     strip's own tag, must neither hide the strip nor end it early.
+  cat >"$tmp/sources-nested.html" <<'HTML'
+<section class="slide" id="a"><p class='slide__sources'><a href="https://e.com/a"
+  target="_blank" rel="noopener">A</a><p>inner</p><a href="b.md">B</a></p></section>
+HTML
+  expect_line "single-quoted, nested strip still scanned" deck "$tmp/sources-nested.html" \
     "[FAIL] slide__sources links absolute"
 
   if [ "$fails" -eq 0 ]; then
@@ -460,18 +474,34 @@ check_deck() {
   # deck is opened from wherever it was written, so a relative or #anchor href
   # there is a dead citation; only absolute http(s) URLs survive the move.
   # Read from $flat (one tag per line) so a strip whose attributes wrap is found.
+  # Either quote style; the strip ends at ITS closing tag, so a nested element
+  # of the same tag name is depth-counted rather than ending the scan early.
+  # shortcut: tag-level text scan, not an HTML parse - an attribute value that
+  # contains '<' or '>' breaks it. Upgrade to a real parser if that ever ships.
   srcs=$(awk '
-    !inside && /class="([^"]*[[:space:]])?slide__sources[[:space:]"]/ {
-      inside = 1; t = $0; sub(/^</, "", t); sub(/[[:space:]>].*/, "", t); next }
-    inside && index($0, "</" t) == 1 { inside = 0; next }
-    inside && /^<a[[:space:]>]/ { print }' <<<"$flat")
+    !inside && /class=["\047]([^"\047]*[[:space:]])?slide__sources[[:space:]"\047]/ {
+      inside = 1; d = 1; t = $0; sub(/^</, "", t); sub(/[[:space:]>].*/, "", t); next }
+    inside && $0 ~ ("^<" t "[[:space:]>]") { d++ }
+    inside && $0 ~ ("^</" t "[[:space:]>]") && --d == 0 { inside = 0; next }
+    inside && /^<[aA][[:space:]>]/ { print }' <<<"$flat")
   n=$(grep -c . <<<"$srcs" || true)
-  hits=$(grep -vE '[[:space:]]href="https?://' <<<"$srcs" |
-    sed -n 's/^\(<a[^>]*\)>.*/\1>/p' | head -3 | tr '\n' ' ' || true)
+  hits=$(grep -viE "[[:space:]]href=[\"']?https?://" <<<"$srcs" |
+    sed -n 's/^\(<[aA][^>]*\)>.*/\1>/p' | head -3 | tr '\n' ' ' || true)
   if [ -z "$hits" ]; then
     ok "slide__sources links absolute ($n)"
   else
     bad "slide__sources links absolute" "non-absolute link(s) in .slide__sources: ${hits% }"
+  fi
+  # A citation opens outside the deck, so it must not hand the deck's window to
+  # the cited page (reverse tabnabbing): target=_blank plus rel=noopener.
+  hits=$(grep -viE "[[:space:]]rel=[\"'][^\"']*noopener" <<<"$srcs" |
+    sed -n 's/^\(<[aA][^>]*\)>.*/\1>/p' | head -3 | tr '\n' ' ' || true)
+  hits="$hits$(grep -viE "[[:space:]]target=[\"']?_blank" <<<"$srcs" |
+    sed -n 's/^\(<[aA][^>]*\)>.*/\1>/p' | head -3 | tr '\n' ' ' || true)"
+  if [ -z "$hits" ]; then
+    ok "slide__sources links open in a new tab with rel=noopener ($n)"
+  else
+    bad "slide__sources links open in a new tab with rel=noopener" "missing target=_blank or rel=noopener: ${hits% }"
   fi
 }
 
