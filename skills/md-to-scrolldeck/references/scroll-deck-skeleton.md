@@ -423,7 +423,9 @@ it is what stops Korean headlines breaking mid-word.
       }
       .matrix th:first-child { text-align: left; }
       .slide--dark .matrix th,
-      .slide--dark .matrix td { border-bottom-color: var(--line-dark); }
+      .slide--dark .matrix td,
+      .slide--dark .usage-list li { border-bottom-color: var(--line-dark); }
+      .slide--dark .matrix thead th { color: rgba(246, 244, 237, 0.6); }
       .use-dot {
         display: inline-block;
         width: 12px;
@@ -801,7 +803,7 @@ for the list. Cell labels go in the deck's language:
         </tbody>
       </table>
       <ul class="usage-list">
-        <li><strong>ROW TITLE</strong>COLUMN A</li>
+        <li><strong>ROW TITLE</strong>COLUMN A</li><!-- several marks: COLUMN A · COLUMN C -->
       </ul>
     </div>
 ```
@@ -825,4 +827,4 @@ hero(dark) -> paper -> soft -> paper -> dark -> paper -> soft
 6. Each slide gets `aria-labelledby` matching its own `h1`/`h2` id.
 7. `.reveal` is applied to direct children of `.slide__inner` only — the
    `nth-child` delays are relative to that parent.
-8. Every link in a `.slide__sources` strip is an absolute `https://` URL.
+8. Every link in a `.slide__sources` strip is an absolute `http(s)://` URL.

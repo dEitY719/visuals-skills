@@ -99,12 +99,14 @@ you invented.
 **Check the ranges mechanically before printing the outline.** A range you
 wrote from memory can point past the end of the file, and nothing downstream
 notices. Count the lines with `awk` (`wc -l` misses a last line that has no
-newline), then feed every slide's `start-end`:
+newline), then feed every slide's range as the outline prints it (`L1-33`,
+or `L12` for a single line):
 
 ```sh
 total=$(awk 'END { print NR }' "<input.md>")
-printf '%s\n' 1-33 35-49 51-66 | awk -F- -v t="$total" '
-  $1 < 1 || $2 > t || $1 > $2 { printf "[FAIL] outline source range L%s (file has %d lines)\n", $0, t; bad = 1 }
+printf '%s\n' L1-33 L35-49 L51-66 | awk -F- -v t="$total" '
+  { gsub(/L/, ""); s = $1 + 0; e = (NF > 1 ? $2 : $1) + 0 }
+  s < 1 || e > t || s > e { printf "[FAIL] outline source range L%s (file has %d lines)\n", $0, t; bad = 1 }
   END { exit bad }'
 ```
 
@@ -155,8 +157,8 @@ after the closing punctuation:
 ... 지난 분기 대비 처리량이 두 배가 됐다. [주간 리포트](https://…) · [회고 보드](https://…)
 ```
 
-Only that shape qualifies: links after a sentence that ends in `.` `?` `!`
-(or a closing `**`), separated by `·`. Take them out of the body and put them
+Only that shape qualifies: one link, or several separated by `·`, after a
+sentence that ends in `.` `?` `!` (or a closing `**`). Take them out of the body and put them
 in a `<footer class="slide__sources">` as the last child of that slide's
 `.slide__inner` — same link text, same absolute URLs, joined by ` · `, each
 with `target="_blank" rel="noopener noreferrer"`. Markup and style:
@@ -178,7 +180,7 @@ exactly one copy visible.
   blank as `<span class="sr-only">…</span>`, both labels in the deck's
   language (`사용` / `사용 안 함`), so a screen reader hears every cell.
 - Narrow screens: `<ul class="usage-list">`, one `<li>` per row — the row
-  title, then the columns it marks. The skeleton's 767px media query hides the
+  title, then the columns it marks joined by ` · `. The skeleton's 767px media query hides the
   table and shows the list.
 
 If any cell holds something other than `●` or blank — a number, `full`, a
