@@ -180,6 +180,12 @@ HTML
 HTML
   expect_line "single-quoted, nested strip still scanned" deck "$tmp/sources-nested.html" \
     "[FAIL] slide__sources links absolute"
+  # 13. PR #49 review (agy): the bare class="slide__sources", with no second
+  #     class, is found - the closing quote ends the class token.
+  printf '%s\n' '<section class="slide" id="a"><footer class="slide__sources"><a href="x.md">X</a></footer></section>' \
+    >"$tmp/sources-bare.html"
+  expect_line "bare class=slide__sources found" deck "$tmp/sources-bare.html" \
+    "[FAIL] slide__sources links absolute"
 
   if [ "$fails" -eq 0 ]; then
     printf '[OK] verify-html selftest: all cases passed\n'
