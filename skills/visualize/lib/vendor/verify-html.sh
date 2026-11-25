@@ -459,12 +459,12 @@ check_deck() {
   # A .slide__sources strip carries a paragraph's citation links (#48). The
   # deck is opened from wherever it was written, so a relative or #anchor href
   # there is a dead citation; only absolute http(s) URLs survive the move.
-  # Tags are flattened first so a strip whose attributes wrap is still found.
-  srcs=$(flatten_tags | awk '
+  # Read from $flat (one tag per line) so a strip whose attributes wrap is found.
+  srcs=$(awk '
     !inside && /class="([^"]*[[:space:]])?slide__sources[[:space:]"]/ {
       inside = 1; t = $0; sub(/^</, "", t); sub(/[[:space:]>].*/, "", t); next }
     inside && index($0, "</" t) == 1 { inside = 0; next }
-    inside && /^<a[[:space:]>]/ { print }')
+    inside && /^<a[[:space:]>]/ { print }' <<<"$flat")
   n=$(grep -c . <<<"$srcs" || true)
   hits=$(grep -vE '[[:space:]]href="https?://' <<<"$srcs" |
     sed -n 's/^\(<a[^>]*\)>.*/\1>/p' | head -3 | tr '\n' ' ' || true)
